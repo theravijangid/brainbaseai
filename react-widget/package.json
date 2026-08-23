@@ -1,0 +1,56 @@
+{
+  "name": "@brainbaseai/react-widget",
+  "version": "1.0.0",
+  "description": "Native React widget for Brainbase Support Agent",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./dist/index.css": "./dist/index.css"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "keywords": [
+    "brainbase",
+    "ai",
+    "support-agent",
+    "chat-widget",
+    "react",
+    "ai-sdk"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@ai-sdk/react": ">=1.0.0",
+    "ai": ">=4.0.0",
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.428.0",
+    "tailwind-merge": "^2.2.1"
+  }
+}

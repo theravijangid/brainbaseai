@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import type { ChatMessage, Source } from "@/lib/types";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -41,21 +41,52 @@ export function ResearchView({
 
   const { data: history, isLoading: isHistoryLoading } = useChatHistory(workspaceId, conversationId);
 
-  const chatHelpers = useChat({
-    id: conversationId ?? "new",
-    transport: new DefaultChatTransport({
+  const chatTransport = useMemo(() => {
+    return new DefaultChatTransport({
       api: `${apiUrl}/api/v1/workspaces/${workspaceId}/chat`,
       body: { conversationId },
       fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
         const token = await getToken();
         const headers = new Headers(init?.headers);
         headers.set("Authorization", `Bearer ${token}`);
+        
+        // Intercept the body to flatten Vercel AI SDK parts into a string for the backend validator
+        if (init && init.body) {
+          try {
+            const bodyStr = typeof init.body === "string" ? init.body : init.body.toString();
+            const bodyObj = JSON.parse(bodyStr);
+            if (bodyObj.messages && Array.isArray(bodyObj.messages)) {
+              bodyObj.messages = bodyObj.messages.map((msg: any) => {
+                let content = msg.content;
+                if (!content && msg.parts && Array.isArray(msg.parts)) {
+                  content = msg.parts
+                    .filter((p: any) => p.type === 'text')
+                    .map((p: any) => p.text || '')
+                    .join('\n');
+                }
+                return {
+                  role: msg.role,
+                  content: content || ''
+                };
+              });
+              init.body = JSON.stringify(bodyObj);
+            }
+          } catch (e) {
+            // Ignore parse errors, let the backend handle validation
+          }
+        }
+
         return fetch(input, {
           ...init,
           headers
         });
       },
-    }),
+    });
+  }, [apiUrl, workspaceId, conversationId, getToken]);
+
+  const chatHelpers = useChat({
+    id: conversationId ?? "new",
+    transport: chatTransport,
     onFinish: () => {
       // Mark that we just finished so the history useEffect skips applying stale data
       // until the fresh refetch completes.

@@ -6,19 +6,23 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies
+# Install all dependencies for build
 RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
 
-# Build TypeScript
+# Build TypeScript to dist
 RUN npm run build
 
 # Stage 2: Production
 FROM node:20-alpine
 
 WORKDIR /app
+
+# Production environment variables
+ENV NODE_ENV=production
+ENV PORT=5000
 
 # Copy package files
 COPY package*.json ./
@@ -33,4 +37,4 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 5000
 
 # Start application
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/server.js"]

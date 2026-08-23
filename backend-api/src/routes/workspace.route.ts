@@ -42,4 +42,10 @@ router.delete(
   (req, res) => workspaceController.deleteWorkspace(req, res)
 )
 
+router.get(
+  '/:id/analytics',
+  requireWorkspaceAccess,
+  (req, res) => workspaceController.getAnalytics(req, res)
+)
+
 export default router

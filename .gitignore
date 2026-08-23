@@ -6,3 +6,7 @@ dist/
 *.log
 
 .agents
+
+lovable
+
+docs/

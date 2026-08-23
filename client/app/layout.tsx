@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -20,8 +21,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Groundwork AI",
-  description: "Groundwork AI to grounded AI research across your sources",
+  title: "BrainbaseAI — Turn company knowledge into an AI support agent",
+  description: "BrainbaseAI lets you build grounded research and AI support agents across all your knowledge sources.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -46,6 +52,7 @@ export default function RootLayout({
               >
                 {children}
                 <ThemeToggle />
+                <Toaster />
             </ThemeProvider>
           </QueryProvider>
         </ClerkProvider>
@@ -54,3 +61,4 @@ export default function RootLayout({
     </html>
   );
 }
+

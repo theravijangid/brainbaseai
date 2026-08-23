@@ -1,6 +1,6 @@
 import { SourceParser, ParsedDocument, ParsedSection } from './parser.interface';
 import { WebContentExtractor } from '../providers/web-content-extractor.interface';
-import { JinaExtractor } from '../providers/jina-extractor';
+import { WebExtractorFactory } from '../providers/web-extractor.factory';
 import Logger from '../../config/logger';
 
 function splitMarkdownIntoSections(markdown: string): ParsedSection[] {
@@ -70,7 +70,7 @@ export class WebParser implements SourceParser {
   private extractor: WebContentExtractor;
 
   constructor(extractor?: WebContentExtractor) {
-    this.extractor = extractor || new JinaExtractor();
+    this.extractor = extractor || WebExtractorFactory.create();
   }
   
   async parse(fileBuffer: Buffer): Promise<ParsedDocument> {

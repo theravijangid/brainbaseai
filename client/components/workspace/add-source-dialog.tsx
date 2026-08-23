@@ -59,7 +59,11 @@ export function AddSourceDialog({
     
     // Upload all files one by one
     for (let i = 0; i < files.length; i++) {
-      await uploadMutation.mutateAsync(files[i]);
+      try {
+        await uploadMutation.mutateAsync(files[i]);
+      } catch {
+        // Handled by onError toast in useUploadSource
+      }
     }
     
     onOpenChange(false);
@@ -68,13 +72,17 @@ export function AddSourceDialog({
   const handleAddUrl = async () => {
     if (!urlKind) return;
     
-    await registerUrlMutation.mutateAsync({
-      url,
-      type: urlKind,
-      name: url,
-    });
-    setUrl("");
-    onOpenChange(false);
+    try {
+      await registerUrlMutation.mutateAsync({
+        url,
+        type: urlKind,
+        name: url,
+      });
+      setUrl("");
+      onOpenChange(false);
+    } catch {
+      // Handled by onError toast in useRegisterUrlSource
+    }
   };
   
   const isPending = uploadMutation.isPending || registerUrlMutation.isPending;

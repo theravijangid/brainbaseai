@@ -64,7 +64,8 @@ export class RetrievalService {
     workspaceId: string,
     representations: QueryRepresentations,
     telemetry?: RagTelemetry,
-    excludedChunkIds?: Set<string>
+    excludedChunkIds?: Set<string>,
+    sourceIds?: string[]
   ): Promise<RetrievedChunk[]> {
     const { retrievalCandidates, minSimilarityScore } = appConfig.rag;
 
@@ -99,7 +100,7 @@ export class RetrievalService {
     const allChunksMap = new Map<string, RetrievedChunk>();
 
     for (let i = 0; i < embeddings.length; i++) {
-      const searchResults = await qdrantService.searchChunks(workspaceId, embeddings[i], retrievalCandidates);
+      const searchResults = await qdrantService.searchChunks(workspaceId, embeddings[i], retrievalCandidates, sourceIds);
       
       Logger.debug(`[RetrievalService] ${queryLabels[i]} returned ${searchResults.length} candidates.`);
 

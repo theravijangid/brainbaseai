@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@clerk/nextjs';
 import { workspacesApi } from '../api/workspaces.api';
 import { Workspace } from '../lib/types';
+import { toast } from 'sonner';
 
 export function useWorkspaces() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
@@ -51,6 +52,30 @@ export function useCreateWorkspace() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      toast.success('Workspace created successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to create workspace');
+    },
+  });
+}
+
+export function useUpdateWorkspace() {
+  const queryClient = useQueryClient();
+  const { getToken } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { name?: string; description?: string } }) => {
+      const token = await getToken();
+      return workspacesApi.updateWorkspace(id, data, token);
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+      queryClient.invalidateQueries({ queryKey: ['workspaces', variables.id] });
+      toast.success('Workspace updated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update workspace');
     },
   });
 }
@@ -67,6 +92,23 @@ export function useDeleteWorkspace() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] });
       queryClient.removeQueries({ queryKey: ['workspaces', id] });
+      toast.success('Workspace deleted successfully');
     },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete workspace');
+    },
+  });
+}
+
+export function useWorkspaceAnalytics(id: string, days: number = 30) {
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+
+  return useQuery({
+    queryKey: ['workspaces', id, 'analytics', days],
+    queryFn: async () => {
+      const token = await getToken();
+      return workspacesApi.getAnalytics(id, days, token);
+    },
+    enabled: !!id && isLoaded && isSignedIn,
   });
 }

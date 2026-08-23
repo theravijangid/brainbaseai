@@ -1,7 +1,10 @@
 import { Request, Response } from 'express'
 import ApiResponseHandler from '../helpers/api-response-handling.class'
 import workspaceDao from '../dao/workspace.dao'
+import entitlementService from '../services/entitlements/entitlement.service'
 import Logger from '../config/logger'
+import { Source, SupportAgent, Conversation, Message } from '../models'
+import { Op, Sequelize } from 'sequelize'
 
 export class WorkspaceController {
   /**
@@ -10,15 +13,22 @@ export class WorkspaceController {
    */
   async createWorkspace(req: Request, res: Response): Promise<void> {
     try {
-      const user = req.user
-      if (!user) {
-        ApiResponseHandler.handleUnauthorizedRequest(res, 'User not authenticated')
+      const company = req.company
+      if (!company) {
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
+        return
+      }
+
+      const existingWorkspaces = await workspaceDao.findWorkspacesByCompanyId(company.id)
+      const canCreate = await entitlementService.canCreateWorkspace(company.id, existingWorkspaces.length)
+      if (!canCreate) {
+        ApiResponseHandler.handleForbiddenRequest(res, 'PLAN_LIMIT_REACHED: Maximum workspaces allowed by your plan has been reached.')
         return
       }
 
       const { name, description } = req.body
       const workspace = await workspaceDao.createWorkspace({
-        userId: user.id,
+        companyId: company.id,
         name,
         description,
       })
@@ -40,13 +50,13 @@ export class WorkspaceController {
    */
   async listWorkspaces(req: Request, res: Response): Promise<void> {
     try {
-      const user = req.user
-      if (!user) {
-        ApiResponseHandler.handleUnauthorizedRequest(res, 'User not authenticated')
+      const company = req.company
+      if (!company) {
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
         return
       }
 
-      const workspaces = await workspaceDao.findWorkspacesByUserId(user.id)
+      const workspaces = await workspaceDao.findWorkspacesByCompanyId(company.id)
 
       ApiResponseHandler.handleSuccessResponse(
         res,
@@ -65,15 +75,15 @@ export class WorkspaceController {
    */
   async getWorkspaceById(req: Request, res: Response): Promise<void> {
     try {
-      const user = req.user
+      const company = req.company
       const { id } = req.params
 
-      if (!user) {
-        ApiResponseHandler.handleUnauthorizedRequest(res, 'User not authenticated')
+      if (!company) {
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
         return
       }
 
-      const workspace = await workspaceDao.findWorkspaceByIdAndUser(id, user.id)
+      const workspace = await workspaceDao.findWorkspaceByIdAndCompany(id, company.id)
 
       if (!workspace) {
         ApiResponseHandler.handleNotFoundRequest(res, 'Workspace not found')
@@ -97,15 +107,15 @@ export class WorkspaceController {
    */
   async updateWorkspace(req: Request, res: Response): Promise<void> {
     try {
-      const user = req.user
+      const company = req.company
       const { id } = req.params
 
-      if (!user) {
-        ApiResponseHandler.handleUnauthorizedRequest(res, 'User not authenticated')
+      if (!company) {
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
         return
       }
 
-      const workspace = await workspaceDao.updateWorkspace(id, user.id, req.body)
+      const workspace = await workspaceDao.updateWorkspace(id, company.id, req.body)
 
       if (!workspace) {
         ApiResponseHandler.handleNotFoundRequest(res, 'Workspace not found')
@@ -129,15 +139,15 @@ export class WorkspaceController {
    */
   async deleteWorkspace(req: Request, res: Response): Promise<void> {
     try {
-      const user = req.user
+      const company = req.company
       const { id } = req.params
 
-      if (!user) {
-        ApiResponseHandler.handleUnauthorizedRequest(res, 'User not authenticated')
+      if (!company) {
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
         return
       }
 
-      const deleted = await workspaceDao.deleteWorkspace(id, user.id)
+      const deleted = await workspaceDao.deleteWorkspace(id, company.id)
 
       if (!deleted) {
         ApiResponseHandler.handleNotFoundRequest(res, 'Workspace not found')
@@ -152,6 +162,37 @@ export class WorkspaceController {
     } catch (error: any) {
       Logger.error(`Error deleting workspace: ${error.message}`)
       ApiResponseHandler.handleErrorReponse(res, 'Failed to delete workspace', error.message)
+    }
+  }
+
+  /**
+   * GET /api/v1/workspaces/:id/analytics
+   * Get analytics for a specific workspace
+   */
+  async getAnalytics(req: Request, res: Response): Promise<void> {
+    try {
+      const company = req.company
+      const { id } = req.params
+
+      if (!company) {
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
+        return
+      }
+
+      const days = parseInt(req.query.days as string) || 30
+      const startDate = new Date()
+      startDate.setDate(startDate.getDate() - days)
+
+      const analyticsData = await workspaceDao.getWorkspaceAnalytics(id, startDate)
+
+      ApiResponseHandler.handleSuccessResponse(
+        res,
+        'Workspace analytics fetched successfully',
+        analyticsData
+      )
+    } catch (error: any) {
+      Logger.error(`Error fetching workspace analytics: ${error.message}`)
+      ApiResponseHandler.handleErrorReponse(res, 'Failed to fetch workspace analytics', error.message)
     }
   }
 }

@@ -44,6 +44,30 @@ export class Conversation extends Model {
   })
   declare title: string
 
+  @AllowNull(false)
+  @Default('open')
+  @Column({
+    type: DataType.STRING,
+    field: 'status',
+  })
+  declare status: string
+
+  @AllowNull(true)
+  @Default('Visitor')
+  @Column({
+    type: DataType.STRING,
+    field: 'customer_name',
+  })
+  declare customerName: string
+
+  @ForeignKey(() => require('./support-agent.model').SupportAgent)
+  @AllowNull(true)
+  @Column({
+    type: DataType.UUID,
+    field: 'support_agent_id',
+  })
+  declare supportAgentId?: string
+
   @CreatedAt
   @Column({
     type: DataType.DATE,
@@ -60,6 +84,9 @@ export class Conversation extends Model {
 
   @BelongsTo(() => require('./workspace.model').Workspace, 'workspaceId')
   declare workspace: WorkspaceType
+
+  @BelongsTo(() => require('./support-agent.model').SupportAgent, 'supportAgentId')
+  declare supportAgent?: any
 
   @HasMany(() => Message, 'conversationId')
   declare messages: Message[]

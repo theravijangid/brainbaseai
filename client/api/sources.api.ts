@@ -37,4 +37,12 @@ export const sourcesApi = {
   getSourceViewBlob: async (workspaceId: string, sourceId: string, token: string | null): Promise<Blob> => {
     return apiConnector.get<Blob>(`/workspaces/${workspaceId}/sources/${sourceId}/view`, token, { responseType: 'blob' });
   },
+
+  getSources: async (workspaceId: string, token: string | null): Promise<Source[]> => {
+    return apiConnector.get<Source[]>(`/workspaces/${workspaceId}/sources`, token);
+  },
+
+  syncSource: async (workspaceId: string, sourceId: string, token: string | null): Promise<Source> => {
+    return apiConnector.post<Source>(`/workspaces/${workspaceId}/sources/${sourceId}/sync`, {}, token);
+  },
 };

@@ -48,6 +48,19 @@ const appConfig = {
   ingest: {
     eventKey: getOptionalEnvVar('INNGEST_EVENT_KEY', ''),
   },
+  razorpay: {
+    keyId: getOptionalEnvVar('RAZORPAY_KEY_ID', ''),
+    keySecret: getOptionalEnvVar('RAZORPAY_KEY_SECRET', ''),
+    webhookSecret: getOptionalEnvVar('RAZORPAY_WEBHOOK_SECRET', ''),
+  },
+  firecrawl: {
+    apiKey: getOptionalEnvVar('FIRECRAWL_API_KEY', ''),
+    baseUrl: getOptionalEnvVar('FIRECRAWL_BASE_URL', 'https://api.firecrawl.dev/v2'),
+    timeoutMs: parseInt(getOptionalEnvVar('FIRECRAWL_TIMEOUT_MS', '30000'), 10),
+  },
+  webExtractor: {
+    provider: getOptionalEnvVar('WEB_EXTRACTOR_PROVIDER', 'firecrawl') as 'firecrawl' | 'jina',
+  },
 }
 
 export default appConfig

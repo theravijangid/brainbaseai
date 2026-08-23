@@ -1,352 +1,551 @@
 import Link from "next/link";
-import { ArrowRight, Layers, Search, Sparkles, ShieldCheck } from "lucide-react";
-import { AppLogo, SourceTypeIcon } from "@/components/app-logo";
+import {
+  ArrowRight,
+  BarChart3,
+  Bot,
+  BrainCircuit,
+  CheckCircle2,
+  Code2,
+  FileText,
+  Globe,
+  Lock,
+  MessagesSquare,
+  Quote,
+  RefreshCw,
+  Shield,
+  Upload,
+  Zap,
+} from "lucide-react";
+
+import { MarketingShell } from "@/components/marketing/MarketingShell";
+import { SupportWidgetPanel } from "@/components/widget/SupportWidget";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { UserButton } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { faqs, integrations, plans } from "@/lib/brainbase-data";
 
 export const metadata = {
-  title: "Groundwork — Grounded AI research across your sources",
-  description: "Research across documents, websites and videos with answers grounded in your sources.",
+  title: "BrainbaseAI — Turn company knowledge into an AI support agent",
 };
 
-export default async function Landing() {
-  const { userId } = await auth();
+export default function RoutePage(props: any) {
+  return <LandingPage {...props} />;
+}
 
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <AppLogo />
-        <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
-          <a href="#features" className="hover:text-foreground">Features</a>
-          <a href="#how" className="hover:text-foreground">How it works</a>
-          <a href="#explain" className="hover:text-foreground">Explainability</a>
-        </nav>
-        <div className="flex items-center gap-2">
-          {!userId ? (
-            <Link
-              href="/sign-in"
-              className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline"
-            >
-              Sign in
-            </Link>
-          ) : (
-            <UserButton />
-          )}
-          <Button asChild size="sm">
-            <Link href="/dashboard">Start Researching</Link>
-          </Button>
-        </div>
-      </header>
+    <span className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated px-3 py-1 text-xs font-medium text-muted-foreground">
+      {children}
+    </span>
+  );
+}
 
-      {/* Hero */}
-      <section className="mx-auto max-w-6xl px-6 pt-16 pb-10 md:pt-24">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-success" />
-            Adaptive · Grounded · Explainable
+function SectionHead({
+  eyebrow,
+  title,
+  body,
+  center = true,
+}: {
+  eyebrow: string;
+  title: string;
+  body?: string;
+  center?: boolean;
+}) {
+  return (
+    <div className={center ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h2 className="mt-4 text-3xl font-semibold text-balance-tight sm:text-4xl">{title}</h2>
+      {body ? <p className="mt-3 text-base leading-relaxed text-muted-foreground">{body}</p> : null}
+    </div>
+  );
+}
+
+function FlowChip({ label, muted }: { label: string; muted?: boolean }) {
+  return (
+    <div
+      className={
+        muted
+          ? "rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted-foreground"
+          : "rounded-lg border border-primary/25 bg-primary-soft px-3 py-2 text-xs font-medium text-primary"
+      }
+    >
+      {label}
+    </div>
+  );
+}
+
+function LandingPage() {
+  return (
+    <MarketingShell>
+      {/* HERO */}
+      <section className="relative overflow-hidden border-b border-border">
+        <div className="pointer-events-none absolute inset-0 hero-grid" aria-hidden />
+        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-20 sm:px-6 lg:pt-28">
+          <div className="mx-auto max-w-3xl text-center">
+            <Eyebrow>
+              <span className="size-1.5 rounded-full bg-success" /> Company Brain + Support Agent
+            </Eyebrow>
+            <h1 className="mt-5 text-4xl font-semibold text-balance-tight sm:text-5xl lg:text-6xl">
+              Turn your company knowledge into an AI support agent.
+            </h1>
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+              Connect your company's knowledge and give customers instant, accurate answers through an
+              AI agent that understands your business.
+            </p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg">
+                <Link href="/sign-up">
+                  Get Started Free <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/" >
+                  See How It Works
+                </Link>
+              </Button>
+            </div>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Free plan includes 2 workspaces and 1 active Support Agent. No card required.
+            </p>
           </div>
-          <h1 className="font-serif text-5xl leading-[1.05] tracking-tight md:text-6xl">
-            Research across documents, websites and videos —{" "}
-            <span className="italic text-muted-foreground">
-              with answers grounded in your sources.
-            </span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-            Upload your research material, ask complex questions, and inspect the
-            exact evidence behind every answer. Every claim traces back to the
-            passage, page, or timestamp it came from.
-          </p>
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/dashboard">
-                Start Researching
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
-            {/* <Button asChild size="lg" variant="outline">
-              <Link href="/workspace/w1">
-                View demo
-              </Link>
-            </Button> */}
+
+          {/* Hero product preview */}
+          <div className="mt-16 grid gap-4 lg:grid-cols-[1.35fr_1fr]" id="product">
+            <div className="surface-panel overflow-hidden">
+              <div className="flex items-center gap-2 border-b border-border bg-surface px-4 py-2.5">
+                <span className="size-2 rounded-full bg-border-strong" />
+                <span className="size-2 rounded-full bg-border-strong" />
+                <span className="size-2 rounded-full bg-border-strong" />
+                <span className="ml-2 text-xs text-muted-foreground">Company Brain · Acme Support</span>
+              </div>
+              <div className="grid gap-4 p-5 sm:grid-cols-2">
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Company knowledge
+                  </p>
+                  {[
+                    { icon: FileText, name: "Refund Policy.pdf", meta: "Ready" },
+                    { icon: FileText, name: "Onboarding Handbook.pdf", meta: "Ready" },
+                    { icon: Globe, name: "acme.com/help", meta: "Synced 2h ago" },
+                  ].map((s) => (
+                    <div
+                      key={s.name}
+                      className="flex items-center gap-2.5 rounded-lg border border-border bg-elevated px-3 py-2.5"
+                    >
+                      <s.icon className="size-4 text-muted-foreground" />
+                      <span className="min-w-0 flex-1 truncate text-sm">{s.name}</span>
+                      <span className="text-[11px] text-success">{s.meta}</span>
+                    </div>
+                  ))}
+                  <div className="rounded-lg border border-primary/25 bg-primary-soft px-3 py-2.5 text-sm font-medium text-primary">
+                    BrainbaseAI · indexed & ready
+                  </div>
+                </div>
+                <div className="space-y-3 rounded-lg border border-border bg-surface p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Internal answer
+                  </p>
+                  <p className="text-sm leading-relaxed">
+                    Your refund policy allows customers to request a refund within 14 days of delivery.
+                  </p>
+                  <div className="flex items-center gap-2 rounded-md border border-border bg-elevated px-2.5 py-2 text-xs text-muted-foreground">
+                    <Quote className="size-3" /> Refund Policy.pdf · Section 3 · p.4
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Citations appear only inside Company Brain.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center lg:justify-end">
+              <SupportWidgetPanel className="h-[420px] max-w-sm" />
+            </div>
           </div>
         </div>
-
-        {/* Product preview */}
-        <ProductPreview />
       </section>
 
-      {/* Sources supported */}
-      <section id="features" className="mx-auto max-w-6xl px-6 py-16">
-        <SectionHeader
-          eyebrow="Multi-source"
-          title="Bring every kind of research material"
-          subtitle="Groundwork indexes what you already read, watch and reference."
-        />
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+      {/* TRUST STRIP */}
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-5">
           {[
-            { t: "pdf" as const, l: "PDF" },
-            { t: "website" as const, l: "Websites" },
-            { t: "youtube" as const, l: "YouTube" },
-            { t: "vtt" as const, l: "Transcripts" },
-            { t: "markdown" as const, l: "Markdown" },
-          ].map((s) => (
-            <div
-              key={s.l}
-              className="flex flex-col items-start gap-2 rounded-lg border border-border bg-surface p-4"
-            >
-              <SourceTypeIcon type={s.t} className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm font-medium">{s.l}</span>
+            { icon: Lock, label: "Secure company knowledge" },
+            { icon: Shield, label: "Workspace isolation" },
+            { icon: BrainCircuit, label: "Source-aware AI" },
+            { icon: Code2, label: "Easy website integration" },
+            { icon: Zap, label: "Usage-based plans" },
+          ].map((i) => (
+            <div key={i.label} className="flex items-center gap-2.5">
+              <i.icon className="size-4 shrink-0 text-primary" aria-hidden />
+              <span className="text-sm text-muted-foreground">{i.label}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Feature grid */}
-      <section id="how" className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-6 md:grid-cols-2">
-          <FeatureCard
-            icon={<Layers className="h-4 w-4" />}
-            title="Grounded answers with clickable citations"
-            body="Every claim links to the passage, page or timestamp it came from. No decorative citations."
-          >
-            <div className="rounded-md border border-border bg-surface p-4 text-sm leading-relaxed">
-              SQS provides durable message buffering and lets workers process
-              independently.{" "}
-              <span className="citation-chip citation-chip-active">1</span>
-              <br />
-              The queue absorbs spikes without overwhelming downstream services.{" "}
-              <span className="citation-chip">2</span>
-            </div>
-          </FeatureCard>
-
-          <FeatureCard
-            icon={<Search className="h-4 w-4" />}
-            title="Inspect every source"
-            body="Clicking a citation opens the original evidence in a side panel — the exact page, paragraph, or moment in a video."
-          >
-            <div className="rounded-md border border-border bg-surface p-3 font-mono text-xs">
-              <div className="mb-2 flex items-center justify-between text-muted-foreground">
-                <span>architecture.pdf</span>
-                <span>Page 18</span>
-              </div>
-              <p className="font-sans text-sm text-foreground">
-                <span className="highlight-mark">
-                  The architecture uses SQS as a durable buffer
-                </span>{" "}
-                between the ingestion API and the worker pool…
-              </p>
-            </div>
-          </FeatureCard>
-
-          <FeatureCard
-            icon={<Sparkles className="h-4 w-4" />}
-            title="Adaptive retrieval"
-            body="The system chooses retrieval strategies based on the question — rewriting, hybrid search, reranking — only when they help."
-          >
-            <div className="flex flex-wrap gap-1.5 text-xs">
-              {["Rewrite", "Hybrid", "Rerank"].map((s) => (
-                <span
-                  key={s}
-                  className="rounded-md border border-border-strong bg-highlight/40 px-2 py-0.5 text-highlight-foreground"
-                >
-                  ✓ {s}
-                </span>
-              ))}
-              {["Step-back", "HyDE", "Decomposition"].map((s) => (
-                <span
-                  key={s}
-                  className="rounded-md border border-border bg-surface px-2 py-0.5 text-muted-foreground"
-                >
-                  ○ {s}
-                </span>
-              ))}
-            </div>
-          </FeatureCard>
-
-          <FeatureCard
-            icon={<ShieldCheck className="h-4 w-4" />}
-            title="Explainable by design"
-            body="Optional developer view shows how retrieval ran, what was ranked, and how the answer scored."
-          >
-            <div className="grid grid-cols-3 gap-2 font-mono text-[11px]">
-              {[
-                ["Groundedness", "9/10"],
-                ["Relevance", "9/10"],
-                ["Completeness", "8/10"],
-              ].map(([k, v]) => (
-                <div key={k} className="rounded-md border border-border bg-surface p-2">
-                  <div className="text-muted-foreground">{k}</div>
-                  <div className="mt-1 text-foreground">{v}</div>
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" className="border-b border-border py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="How it works"
+            title="From scattered documents to a live support agent"
+            body="Four steps, no engineering project."
+          />
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                n: "01",
+                icon: Upload,
+                title: "Connect your knowledge",
+                body: "Upload PDF, TXT and SRT files or point us at a website URL.",
+                preview: ["Refund Policy.pdf", "acme.com/help", "Shipping FAQ.txt"],
+              },
+              {
+                n: "02",
+                icon: BrainCircuit,
+                title: "Organize it into workspaces",
+                body: "Keep product, billing and internal knowledge cleanly separated.",
+                preview: ["Acme Support", "Internal Helpdesk"],
+              },
+              {
+                n: "03",
+                icon: Bot,
+                title: "Create your AI Support Agent",
+                body: "Set instructions, choose knowledge scope, style the widget.",
+                preview: ["Instructions", "Knowledge scope", "Appearance"],
+              },
+              {
+                n: "04",
+                icon: Code2,
+                title: "Embed it on your website",
+                body: "Paste one snippet and approve the domains allowed to load it.",
+                preview: ["<script src=…>", "acme.com approved"],
+              },
+            ].map((s) => (
+              <div key={s.n} className="surface-panel flex flex-col p-5">
+                <div className="flex items-center justify-between">
+                  <span className="flex size-8 items-center justify-center rounded-lg bg-primary-soft">
+                    <s.icon className="size-4 text-primary" aria-hidden />
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground">{s.n}</span>
                 </div>
-              ))}
-            </div>
-          </FeatureCard>
+                <h3 className="mt-4 text-base font-semibold">{s.title}</h3>
+                <p className="mt-1.5 flex-1 text-sm text-muted-foreground">{s.body}</p>
+                <div className="mt-4 space-y-1.5 rounded-lg border border-border bg-surface p-3">
+                  {s.preview.map((p) => (
+                    <p key={p} className="truncate font-mono text-[11px] text-muted-foreground">
+                      {p}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section id="explain" className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="rounded-2xl border border-border bg-surface p-10 text-center md:p-14">
-          <h2 className="font-serif text-3xl tracking-tight md:text-4xl">
-            Every answer, verifiable.
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
-            Build a workspace, drop in your sources, and start asking real questions.
-          </p>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/dashboard">Start Researching</Link>
-            </Button>
-          </div>
-        </div>
-        <footer className="mt-10 flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <AppLogo showText={false} />
-            <span>© {new Date().getFullYear()} Groundwork</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-foreground">Privacy</a>
-            <a href="#" className="hover:text-foreground">Terms</a>
-          </div>
-        </footer>
-      </section>
-    </div>
-  );
-}
-
-function SectionHeader({
-  eyebrow,
-  title,
-  subtitle,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="max-w-2xl">
-      <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-        {eyebrow}
-      </div>
-      <h2 className="mt-2 font-serif text-3xl tracking-tight md:text-4xl">{title}</h2>
-      <p className="mt-3 text-sm text-muted-foreground">{subtitle}</p>
-    </div>
-  );
-}
-
-function FeatureCard({
-  icon,
-  title,
-  body,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <span className="grid h-7 w-7 place-items-center rounded-md border border-border bg-surface">
-          {icon}
-        </span>
-        <span className="font-mono text-xs uppercase tracking-widest">Feature</span>
-      </div>
-      <h3 className="mt-4 text-lg font-semibold tracking-tight">{title}</h3>
-      <p className="mt-1.5 text-sm text-muted-foreground">{body}</p>
-      {children && <div className="mt-5">{children}</div>}
-    </div>
-  );
-}
-
-function ProductPreview() {
-  return (
-    <div className="relative mx-auto mt-14 max-w-5xl">
-      <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-[0_1px_0_0_rgba(0,0,0,0.03),0_20px_60px_-30px_rgba(0,0,0,0.25)]">
-        {/* window bar */}
-        <div className="flex items-center gap-1.5 border-b border-border bg-surface-2 px-4 py-2.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-          <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-          <span className="h-2.5 w-2.5 rounded-full bg-border-strong" />
-          <span className="ml-3 font-mono text-[11px] text-muted-foreground">
-            groundwork · Distributed Backend Architecture
-          </span>
-        </div>
-        <div className="grid grid-cols-12 min-h-[380px]">
-          {/* Sources */}
-          <aside className="col-span-3 border-r border-border p-4 text-xs">
-            <div className="mb-3 flex items-center justify-between text-muted-foreground">
-              <span className="font-medium text-foreground">Sources</span>
-              <span>+</span>
-            </div>
-            <ul className="space-y-1.5">
+      {/* COMPANY BRAIN */}
+      <section id="solutions" className="border-b border-border py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
+          <div>
+            <SectionHead
+              center={false}
+              eyebrow="Company Brain"
+              title="A private brain your team can actually ask questions to"
+              body="Employees ask in plain language and get answers grounded in your approved company knowledge — with citations back to the exact document, section and page."
+            />
+            <ul className="mt-6 space-y-3">
               {[
-                { t: "pdf" as const, n: "architecture.pdf" },
-                { t: "pdf" as const, n: "database-design.pdf" },
-                { t: "youtube" as const, n: "System Design Lecture" },
-                { t: "website" as const, n: "Backend Architecture Guide" },
-                { t: "vtt" as const, n: "system-design.vtt" },
-              ].map((s) => (
-                <li
-                  key={s.n}
-                  className="flex items-center gap-2 rounded-md px-2 py-1.5 text-foreground hover:bg-accent"
-                >
-                  <SourceTypeIcon type={s.t} className="text-muted-foreground" />
-                  <span className="truncate">{s.n}</span>
+                "Answers cite the source document, section and page",
+                "Click a citation to inspect the original source",
+                "Knowledge stays isolated to its workspace",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-2.5 text-sm">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
+                  {t}
                 </li>
               ))}
             </ul>
-          </aside>
-
-          {/* Chat */}
-          <main className="col-span-6 border-r border-border p-5 text-sm">
-            <div className="mb-4 flex justify-end">
-              <div className="rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-primary-foreground">
-                Why did the author recommend SQS instead of Lambda?
+          </div>
+          <div className="surface-panel p-5">
+            <div className="grid grid-cols-4 items-center gap-2 text-center">
+              <FlowChip label="Sources" muted />
+              <FlowChip label="Processing" muted />
+              <FlowChip label="Company Brain" />
+              <FlowChip label="Cited answer" muted />
+            </div>
+            <div className="mt-5 space-y-3 rounded-lg border border-border bg-surface p-4">
+              <p className="text-sm font-medium">What is our refund window for damaged goods?</p>
+              <div className="rounded-lg border border-border bg-elevated p-3">
+                <p className="text-sm leading-relaxed">
+                  Customers can request a refund within 14 days of delivery. Damaged goods are eligible
+                  for a full refund or replacement with photo evidence.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2 py-1 text-[11px] text-muted-foreground">
+                    <Quote className="size-3" /> Refund Policy.pdf · §3 · p.4
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-2 py-1 text-[11px] text-muted-foreground">
+                    <Quote className="size-3" /> acme.com/help · Returns
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="space-y-2 leading-relaxed">
-              <p>
-                SQS was recommended primarily because it provides durable message
-                buffering and lets workers process independently.{" "}
-                <span className="citation-chip citation-chip-active">1</span>
-              </p>
-              <p>
-                The design also needed to absorb temporary processing spikes
-                without overwhelming downstream services.{" "}
-                <span className="citation-chip">2</span>
-              </p>
-              <p>
-                Lambda's execution model introduced tradeoffs around long-running
-                processing for this workload.{" "}
-                <span className="citation-chip">3</span>
-              </p>
-            </div>
-          </main>
-
-          {/* Source panel */}
-          <section className="col-span-3 p-4 text-xs">
-            <div className="mb-2 flex items-center justify-between">
-              <div>
-                <div className="font-medium text-foreground">architecture.pdf</div>
-                <div className="text-muted-foreground">Page 18</div>
-              </div>
-              <span className="text-muted-foreground">×</span>
-            </div>
-            <div className="rounded-md border border-border bg-background p-3 font-serif text-[13px] leading-relaxed">
-              …the ingestion API places work on a queue.{" "}
-              <span className="highlight-mark">
-                The architecture uses SQS as a durable buffer between the
-                ingestion API and the worker pool
-              </span>
-              , decoupling request rate from processing capacity.
-            </div>
-          </section>
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* SUPPORT AGENT */}
+      <section className="border-b border-border bg-surface py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
+          <div className="order-2 flex justify-center lg:order-1">
+            <SupportWidgetPanel className="h-[460px]" />
+          </div>
+          <div className="order-1 lg:order-2">
+            <SectionHead
+              center={false}
+              eyebrow="Support Agent"
+              title="Your customers get answers, not a document dump"
+              body="The public agent answers from your approved knowledge in a clean, conversational way. Customers never see citations, source names or internal metadata."
+            />
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <FlowChip label="Knowledge" muted />
+              <FlowChip label="Support Agent" />
+              <FlowChip label="Customer" muted />
+              <FlowChip label="Instant answer" muted />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* KNOWLEDGE SOURCES */}
+      <section className="border-b border-border py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Knowledge sources"
+            title="Bring the knowledge you already have"
+            body="Documents and website pages become searchable knowledge in minutes."
+          />
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { t: "PDF", d: "Policies, handbooks, manuals" },
+              { t: "TXT", d: "Plain-text notes and FAQs" },
+              { t: "SRT", d: "Video and webinar transcripts" },
+              { t: "Website", d: "Help centres and public pages" },
+            ].map((s) => (
+              <div key={s.t} className="surface-panel p-5">
+                <span className="font-mono text-xs font-semibold text-primary">{s.t}</span>
+                <p className="mt-2 text-sm text-muted-foreground">{s.d}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {["Upload", "Process", "Index", "Ready"].map((s, i) => (
+              <FlowChip key={s} label={`${i + 1}. ${s}`} muted={i < 3} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SOURCE UPDATE */}
+      <section className="border-b border-border bg-surface py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
+          <SectionHead
+            center={false}
+            eyebrow="Always current"
+            title="Your knowledge changes. Your AI should too."
+            body="Replace a document with a new version or re-sync a website whenever things change. If an update can't be processed, your last working knowledge stays live — your agent never goes dark."
+          />
+          <div className="surface-panel p-6">
+            <div className="space-y-3">
+              {[
+                { label: "Old knowledge", tone: "muted" },
+                { label: "Sync / Update", tone: "primary" },
+                { label: "New knowledge", tone: "muted" },
+                { label: "AI stays up to date", tone: "success" },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className={
+                    s.tone === "primary"
+                      ? "flex items-center gap-2.5 rounded-lg border border-primary/25 bg-primary-soft px-4 py-3 text-sm font-medium text-primary"
+                      : s.tone === "success"
+                        ? "flex items-center gap-2.5 rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm font-medium text-success"
+                        : "flex items-center gap-2.5 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-muted-foreground"
+                  }
+                >
+                  {s.tone === "primary" ? <RefreshCw className="size-4" /> : null}
+                  {s.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ANALYTICS */}
+      <section className="border-b border-border py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Analytics"
+            title="See what customers ask and what your knowledge answers"
+          />
+          <div className="surface-panel mt-10 overflow-hidden">
+            <div className="grid gap-px border-b border-border bg-border sm:grid-cols-4">
+              {[
+                { l: "Conversations", v: "1,462" },
+                { l: "Knowledge usage", v: "297" },
+                { l: "Agent usage", v: "3 active" },
+                { l: "Resolution trend", v: "+12%" },
+              ].map((m) => (
+                <div key={m.l} className="bg-elevated p-5">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{m.l}</p>
+                  <p className="mt-2 font-display text-xl font-semibold">{m.v}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex h-44 items-end gap-2 px-5 py-6">
+              {[38, 52, 44, 61, 74, 48, 66, 82, 58, 71, 88, 64].map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-t bg-primary/80"
+                  style={{ height: `${h}%` }}
+                  aria-hidden
+                />
+              ))}
+            </div>
+            <div className="flex items-center gap-3 border-t border-border px-5 py-3 text-xs text-muted-foreground">
+              <BarChart3 className="size-3.5" /> Conversations over the last 12 weeks · Usage limits
+              tracked per plan
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* INTEGRATIONS */}
+      <section className="border-b border-border bg-surface py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Integrations"
+            title="Start with your website. More connectors on the way."
+            body="Website embed is available today. Everything marked Coming Soon isn't live yet — we won't pretend otherwise."
+          />
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {integrations.map((i) => (
+              <div key={i.name} className="surface-panel flex flex-col p-5">
+                <div className="flex items-center justify-between">
+                  <span className="font-display text-sm font-semibold">{i.name}</span>
+                  {i.available ? (
+                    <span className="rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success">
+                      Available
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                      Coming Soon
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{i.description}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Button asChild variant="outline">
+              <Link href="/integrations">Browse all integrations</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section id="pricing" className="border-b border-border py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Pricing"
+            title="Simple, usage-based pricing"
+            body="Monthly billing in USD. Upgrade or downgrade at any time."
+          />
+          <div className="mt-12 grid gap-5 lg:grid-cols-3">
+            {plans.map((p) => (
+              <div
+                key={p.id}
+                className={
+                  p.highlighted
+                    ? "relative rounded-xl border-2 border-primary bg-elevated p-6 shadow-[var(--shadow-card)]"
+                    : "surface-panel p-6"
+                }
+              >
+                {p.highlighted ? (
+                  <span className="absolute -top-3 left-6 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
+                    Most popular
+                  </span>
+                ) : null}
+                <h3 className="text-sm font-semibold uppercase tracking-wide">{p.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{p.tagline}</p>
+                <p className="mt-4 font-display text-4xl font-semibold">
+                  ${p.price}
+                  <span className="text-sm font-normal text-muted-foreground">/month</span>
+                </p>
+                <Button asChild className="mt-5 w-full" variant={p.highlighted ? "default" : "outline"}>
+                  <Link href="/sign-up">{p.price === 0 ? "Get Started Free" : `Choose ${p.name}`}</Link>
+                </Button>
+                <ul className="mt-6 space-y-2.5 text-sm">
+                  {Object.values(p.limits).map((l) => (
+                    <li key={l} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                      <span>{l}</span>
+                    </li>
+                  ))}
+                  {p.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-muted-foreground">
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-border-strong" aria-hidden />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="border-b border-border bg-surface py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <SectionHead eyebrow="FAQ" title="Questions, answered" />
+          <Accordion type="single" collapsible className="mt-10">
+            {faqs.map((f) => (
+              <AccordionItem key={f.q} value={f.q}>
+                <AccordionTrigger className="text-left text-sm font-medium">{f.q}</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="py-24">
+        <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+          <MessagesSquare className="mx-auto size-6 text-primary" aria-hidden />
+          <h2 className="mt-5 text-3xl font-semibold text-balance-tight sm:text-4xl">
+            Build your AI support agent today.
+          </h2>
+          <p className="mt-3 text-muted-foreground">
+            One place to manage company knowledge and deploy an AI support team.
+          </p>
+          <Button asChild size="lg" className="mt-7">
+            <Link href="/sign-up">
+              Get Started Free <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
+      </section>
+    </MarketingShell>
   );
 }

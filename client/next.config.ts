@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ["@brainbaseai/react-widget"],
 };
 
 export default nextConfig;
+

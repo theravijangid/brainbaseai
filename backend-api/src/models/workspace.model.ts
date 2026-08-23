@@ -13,6 +13,7 @@ import {
   UpdatedAt,
 } from 'sequelize-typescript'
 import { User } from './user.model'
+import { Company } from './company.model'
 import { Source } from './source.model'
 import type { Conversation as ConversationType } from './conversation.model'
 
@@ -31,12 +32,20 @@ export class Workspace extends Model {
   declare id: string
 
   @ForeignKey(() => User)
-  @AllowNull(false)
+  @AllowNull(true) 
   @Column({
     type: DataType.UUID,
     field: 'user_id',
   })
-  declare userId: string
+  declare userId?: string
+
+  @ForeignKey(() => Company)
+  @AllowNull(false)
+  @Column({
+    type: DataType.UUID,
+    field: 'company_id',
+  })
+  declare companyId: string
 
   @AllowNull(false)
   @Column({
@@ -68,6 +77,9 @@ export class Workspace extends Model {
 
   @BelongsTo(() => User, 'userId')
   declare user: User
+
+  @BelongsTo(() => Company, 'companyId')
+  declare company: Company
 
   @HasMany(() => Source, 'workspaceId')
   declare sources: Source[]

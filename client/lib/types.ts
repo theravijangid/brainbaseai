@@ -31,6 +31,7 @@ export type Citation = {
   sourceId: string;
   sourceType: SourceType;
   sourceName: string;
+  workspaceId?: string;
   snippet?: string;
   excerpt?: string;
   page?: number;
@@ -104,4 +105,17 @@ export type Workspace = {
   updatedAt: string;
   sources: Source[];
   conversations: Conversation[];
+};
+
+export type Company = {
+  id: string;
+  name: string;
+  website?: string;
+  industry?: string;
+  companySize?: string;
+  country?: string;
+  description?: string;
+  supportEmail?: string;
+  createdAt: string;
+  updatedAt: string;
 };

@@ -8,8 +8,11 @@ import { GeneralConversationService } from '../services/rag/general-conversation
 import { MemoryService } from '../services/memory/memory.service';
 import { inngestClient } from '../services/queue/inngest.client';
 import { PromptInjectionService } from '../services/security/prompt-injection.service';
+import entitlementService from '../services/entitlements/entitlement.service';
+import { Usage } from '../models/usage.model';
 import Logger from '../config/logger';
 import apiResponseHandlingClass from '../helpers/api-response-handling.class';
+import sequelize from '../database';
 
 export class ChatController {
   static async sendChatMessage(req: Request, res: Response) {
@@ -21,7 +24,15 @@ export class ChatController {
     }
 
     try {
-      const userId = (req as any).user?.id || 'anonymous';
+      const userId = req.user?.id || 'anonymous';
+      const company = req.company;
+
+      if (company) {
+        const canUseKnowledgeChat = await entitlementService.canUseKnowledgeChat(company.id);
+        if (!canUseKnowledgeChat) {
+          return apiResponseHandlingClass.handleForbiddenRequest(res, 'PLAN_LIMIT_REACHED: Maximum knowledge chat messages reached for this billing period.');
+        }
+      }
       
       const lastUserMsg = messages[messages.length - 1];
       
@@ -69,29 +80,38 @@ export class ChatController {
       }
 
       let conversationId = reqConversationId;
-      if (!conversationId) {
-        let title = lastUserMsg.content.trim();
-        if (title.length > 40) {
-          title = title.substring(0, 37) + '...';
+      const t = await sequelize.transaction();
+      try {
+        if (!conversationId) {
+          let title = lastUserMsg.content.trim();
+          if (title.length > 40) {
+            title = title.substring(0, 37) + '...';
+          }
+
+          const conversation = await Conversation.create({
+            workspaceId,
+            title,
+          }, { transaction: t });
+          conversationId = conversation.id;
         }
 
-        const conversation = await Conversation.create({
-          workspaceId,
-          title,
-        });
-        conversationId = conversation.id;
-      }
+        await Message.create({
+          conversationId,
+          role: 'user',
+          content: lastUserMsg.content,
+        }, { transaction: t });
 
-      await Message.create({
-        conversationId,
-        role: 'user',
-        content: lastUserMsg.content,
-      });
+        await t.commit();
+      } catch (err) {
+        await t.rollback();
+        throw err;
+      }
 
       if (fallbackResponse) {
         res.writeHead(200, {
           'Content-Type': 'text/plain; charset=utf-8',
-          'x-vercel-ai-data-stream': 'v1'
+          'x-vercel-ai-data-stream': 'v1',
+          'x-conversation-id': conversationId
         });
         res.write(`0:"${fallbackResponse}"\\n`);
         res.end();
@@ -110,6 +130,7 @@ export class ChatController {
       }
 
       if (result) {
+        res.setHeader('x-conversation-id', conversationId);
         pipeUIMessageStreamToResponse({
           response: res,
           stream: toUIMessageStream({
@@ -166,12 +187,38 @@ export class ChatController {
               }
             }
 
-            await Message.create({
-              conversationId,
-              role: 'assistant',
-              content: fullText,
-              citations: validatedCitationMap,
-            });
+            const asyncT = await sequelize.transaction();
+            try {
+              await Message.create({
+                conversationId,
+                role: 'assistant',
+                content: fullText,
+                citations: validatedCitationMap,
+              }, { transaction: asyncT });
+
+              if (company) {
+                const startOfMonth = new Date();
+                startOfMonth.setDate(1);
+                startOfMonth.setHours(0, 0, 0, 0);
+
+                const [usageRecord] = await Usage.findOrCreate({
+                  where: { companyId: company.id, metric: 'knowledge_chat_messages', periodStart: startOfMonth },
+                  defaults: {
+                    companyId: company.id,
+                    metric: 'knowledge_chat_messages',
+                    count: 0,
+                    periodStart: startOfMonth,
+                    periodEnd: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0),
+                  },
+                  transaction: asyncT
+                });
+                await usageRecord.increment('count', { transaction: asyncT });
+              }
+              await asyncT.commit();
+            } catch (err) {
+              await asyncT.rollback();
+              throw err;
+            }
 
             if (userId !== 'anonymous') {
               inngestClient.send({

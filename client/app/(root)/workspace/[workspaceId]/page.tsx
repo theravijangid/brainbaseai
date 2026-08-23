@@ -73,7 +73,8 @@ function WorkspaceScreen() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isTablet = useMediaQuery("(min-width: 768px)");
 
-  const { selectedCitationId, selectCitation, setCitationMap } = useWorkspace();
+  const { selectedCitationId, selectCitation, getCitation, setCitationMap } = useWorkspace();
+  const citation = selectedCitationId ? getCitation(selectedCitationId) : null;
   const [showRetrieval, setShowRetrieval] = useState(false);
 
   // Use a ref to track the last citation map JSON so we only call setCitationMap
@@ -223,7 +224,7 @@ function WorkspaceScreen() {
                         onClose={() => setShowRetrieval(false)}
                       />
                     ) : (
-                      <SourcePanel />
+                      <SourcePanel citation={citation || null} onClose={() => selectCitation(null)} />
                     )}
                   </ResizablePanel>
                 </>
@@ -260,7 +261,7 @@ function WorkspaceScreen() {
                       onClose={() => setShowRetrieval(false)}
                     />
                   ) : (
-                    <SourcePanel />
+                    <SourcePanel citation={citation || null} onClose={() => selectCitation(null)} />
                   )}
                 </SheetContent>
               </Sheet>

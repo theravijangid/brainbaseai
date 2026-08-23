@@ -1,0 +1,23 @@
+# Source and configs (dist contains the bundled assets)
+src/
+tsconfig.json
+tsup.config.ts
+
+# Environment and secrets
+.env
+.env.*
+*.local
+
+# Tests and development tools
+__tests__/
+*.test.ts
+*.test.tsx
+coverage/
+.turbo/
+.vscode/
+.idea/
+
+# Package logs and cache
+*.log
+.npm
+.eslintcache

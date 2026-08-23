@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize'
 import { Source, SourceType, SourceStatus } from '../models/source.model'
 
 export interface CreateSourceDTO {
@@ -11,7 +12,7 @@ export interface CreateSourceDTO {
 }
 
 export class SourceDao {
-  async createSource(data: CreateSourceDTO): Promise<Source> {
+  async createSource(data: CreateSourceDTO, options?: { transaction?: Transaction }): Promise<Source> {
     return Source.create({
       workspaceId: data.workspaceId,
       name: data.name,
@@ -20,19 +21,21 @@ export class SourceDao {
       originalUrl: data.originalUrl,
       status: data.status || 'QUEUED',
       metadata: data.metadata || {},
-    })
+    }, { transaction: options?.transaction })
   }
 
-  async findSourcesByWorkspaceId(workspaceId: string): Promise<Source[]> {
+  async findSourcesByWorkspaceId(workspaceId: string, options?: { transaction?: Transaction }): Promise<Source[]> {
     return Source.findAll({
       where: { workspaceId },
       order: [['createdAt', 'DESC']],
+      transaction: options?.transaction,
     })
   }
 
-  async findSourceByIdAndWorkspace(id: string, workspaceId: string): Promise<Source | null> {
+  async findSourceByIdAndWorkspace(id: string, workspaceId: string, options?: { transaction?: Transaction }): Promise<Source | null> {
     return Source.findOne({
       where: { id, workspaceId },
+      transaction: options?.transaction,
     })
   }
 
@@ -40,9 +43,10 @@ export class SourceDao {
     id: string,
     workspaceId: string,
     status: SourceStatus,
-    metadata?: Record<string, any>
+    metadata?: Record<string, any>,
+    options?: { transaction?: Transaction }
   ): Promise<Source | null> {
-    const source = await this.findSourceByIdAndWorkspace(id, workspaceId)
+    const source = await this.findSourceByIdAndWorkspace(id, workspaceId, options)
     if (!source) return null
 
     const updatedMetadata = metadata
@@ -52,15 +56,16 @@ export class SourceDao {
     return source.update({
       status,
       metadata: updatedMetadata,
-    })
+    }, { transaction: options?.transaction })
   }
 
-  async deleteSource(id: string, workspaceId: string): Promise<boolean> {
-    const source = await this.findSourceByIdAndWorkspace(id, workspaceId)
+  async deleteSource(id: string, workspaceId: string, options?: { transaction?: Transaction }): Promise<boolean> {
+    const source = await this.findSourceByIdAndWorkspace(id, workspaceId, options)
     if (!source) return false
-    await source.destroy()
+    await source.destroy({ transaction: options?.transaction })
     return true
   }
 }
 
 export default new SourceDao()
+

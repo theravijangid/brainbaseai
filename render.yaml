@@ -1,0 +1,88 @@
+services:
+  - type: web
+    name: brainbase-backend-api
+    runtime: docker
+    rootDir: backend-api
+    dockerfilePath: Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_DIALECT
+        value: postgres
+      - key: POOL_MAX
+        value: 5
+      - key: POOL_MIN
+        value: 1
+      - key: POOL_ACQUIRE
+        value: 30000
+      - key: POOL_IDLE
+        value: 10000
+      - key: LOG_LEVEL
+        value: info
+      - key: ACCESS_KEY_ID
+        sync: false
+      - key: SECRET_ACCESS_KEY
+        sync: false
+      - key: REGION
+        value: auto
+      - key: FILEBASE_ENDPOINT
+        value: https://s3.filebase.io
+      - key: FILEBASE_BUCKET_NAME
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: RAG_ANSWER_MODEL
+        value: openai/gpt-4o-mini
+      - key: REQUEST_ROUTER_MODEL
+        value: openai/gpt-4o-mini
+      - key: GENERAL_CHAT_MODEL
+        value: openai/gpt-4o-mini
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_COLLECTION_NAME
+        value: workspace_chunks
+      - key: JINA_API_KEY
+        sync: false
+      - key: JINA_READER_URL
+        value: https://r.jina.ai
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: MEM0_API_KEY
+        sync: false
+      - key: RAPIDAPI_KEY
+        sync: false
+      - key: RAPIDAPI_HOST
+        value: youtube-transcript3.p.rapidapi.com
+      - key: WIDGET_JWT_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: FIRECRAWL_API_KEY
+        sync: false
+      - key: FIRECRAWL_BASE_URL
+        value: https://api.firecrawl.dev/v2
+      - key: WEB_EXTRACTOR_PROVIDER
+        value: firecrawl

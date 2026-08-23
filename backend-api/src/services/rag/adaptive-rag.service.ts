@@ -19,6 +19,10 @@ export class AdaptiveRagService {
   static async executeRagQuery(
     workspaceId: string,
     messages: any[],
+    options?: {
+      sourceIds?: string[]
+      fallbackResponse?: string
+    }
   ): Promise<{
     result?: any
     citationMap: CitationMap
@@ -107,6 +111,7 @@ export class AdaptiveRagService {
           representations,
           telemetry,
           seenChunkIds,
+          options?.sourceIds
         )
 
         for (const chunk of chunks) {
@@ -144,8 +149,7 @@ export class AdaptiveRagService {
             citationMap: {},
             routingDecision: finalRoutingDecision,
             correctiveHistory,
-            fallbackResponse:
-              "I couldn't find enough relevant information in the workspace sources to answer your question.",
+            fallbackResponse: options?.fallbackResponse || "I couldn't find enough relevant information in the workspace sources to answer your question.",
           }
         }
 
@@ -156,8 +160,7 @@ export class AdaptiveRagService {
             citationMap: {},
             routingDecision: finalRoutingDecision,
             correctiveHistory,
-            fallbackResponse:
-              "I couldn't find enough relevant information in the workspace sources to answer your question.",
+            fallbackResponse: options?.fallbackResponse || "I couldn't find enough relevant information in the workspace sources to answer your question.",
           }
         }
 
@@ -173,8 +176,7 @@ export class AdaptiveRagService {
           citationMap: {},
           routingDecision: finalRoutingDecision,
           correctiveHistory,
-          fallbackResponse:
-            "I couldn't find enough relevant information in the workspace sources to answer your question.",
+          fallbackResponse: options?.fallbackResponse || "I couldn't find enough relevant information in the workspace sources to answer your question.",
         }
       }
 

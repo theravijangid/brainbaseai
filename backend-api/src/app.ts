@@ -8,7 +8,13 @@ import workspaceRouter from './routes/workspace.route'
 import sourceRouter from './routes/source.route'
 import inngestRouter from './routes/inngest.route'
 import chatRouter from './routes/chat.route'
+import companyRouter from './routes/company.route'
+import supportAgentRouter from './routes/support-agent.route'
+import widgetRouter from './routes/widget.route'
 import { clerkMiddleware } from '@clerk/express'
+
+import webhookRouter from './routes/webhook.route'
+import { requestLogger } from './middleware/logger.middleware'
 
 const app: Express = express()
 
@@ -32,6 +38,10 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }))
+
+// Mount webhook routes BEFORE json parsing
+app.use('/api/v1/webhooks', webhookRouter)
+
 app.use(json({ limit: '500kb' }))
 app.use(urlencoded({ extended: true }))
 app.use(clerkMiddleware())
@@ -42,20 +52,25 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
-  res.send('Advance RAG Backend API')
+  res.send('BrainbaseAI Backend API')
 })
 
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    service: 'Advance RAG Backend API',
+    service: 'BrainbaseAI Backend API',
   })
 })
 
+app.use('/api/v1/companies', companyRouter)
 app.use('/api/v1/workspaces', workspaceRouter)
 app.use('/api/v1/workspaces/:workspaceId/sources', sourceRouter)
 app.use('/api/v1/workspaces/:workspaceId/chat', chatRouter)
+app.use('/api/v1/workspaces/:workspaceId/agents', supportAgentRouter)
+app.use('/api/v1/workspaces/:workspaceId/conversations', require('./routes/conversation.route').default)
+app.use('/api/v1/billing', require('./routes/billing.route').default)
+app.use('/api/v1/widget', widgetRouter)
 app.use('/api/inngest', inngestRouter)
 
 // 404 handler

@@ -1,4 +1,4 @@
-import { v5 as uuidv5 } from 'uuid';
+import { v4 as uuidv4, v5 as uuidv5 } from 'uuid';
 import SourceDao from '../dao/source.dao';
 import filebaseStorageService from '../services/filebase-storage.service';
 import { PDFParser } from '../services/parsers/pdf.parser';
@@ -16,16 +16,19 @@ import Logger from '../config/logger';
 const CHUNK_NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341';
 
 export class SourceIngestionProcessor {
-  static async processSource(workspaceId: string, sourceId: string) {
+  static async processSource(workspaceId: string, sourceId: string, isSync: boolean = false) {
+    const ingestionId = uuidv4();
     try {
       const source = await SourceDao.findSourceByIdAndWorkspace(sourceId, workspaceId);
       if (!source) {
         throw new Error(`Source not found: ${sourceId}`);
       }
 
-      Logger.info(`Starting ingestion for source ${sourceId} (type: ${source.type})`);
+      Logger.info(`Starting ingestion for source ${sourceId} (type: ${source.type}, sync: ${isSync}, ingestionId: ${ingestionId})`);
 
-      await SourceDao.updateSourceStatus(sourceId, workspaceId, 'PARSING');
+      if (!isSync) {
+        await SourceDao.updateSourceStatus(sourceId, workspaceId, 'PARSING');
+      }
 
       let fileBuffer: Buffer;
 
@@ -91,7 +94,9 @@ export class SourceIngestionProcessor {
           throw new Error(`Unsupported source type for ingestion: ${source.type}`);
       }
 
-      await SourceDao.updateSourceStatus(sourceId, workspaceId, 'CHUNKING', parsedDoc.metadata);
+      if (!isSync) {
+        await SourceDao.updateSourceStatus(sourceId, workspaceId, 'CHUNKING', parsedDoc.metadata);
+      }
 
       const chunks = ChunkingService.chunkSections(parsedDoc.sections, {
         sourceId,
@@ -104,13 +109,15 @@ export class SourceIngestionProcessor {
       }
 
       Logger.info(`Generated ${chunks.length} chunks for source ${sourceId}`);
-      await SourceDao.updateSourceStatus(sourceId, workspaceId, 'EMBEDDING');
+      if (!isSync) {
+        await SourceDao.updateSourceStatus(sourceId, workspaceId, 'EMBEDDING');
+      }
 
       const texts = chunks.map(c => c.text);
       const embeddings = await EmbeddingService.generateEmbeddingsBatch(texts);
 
       const points = chunks.map((chunk, i) => {
-        const pointId = uuidv5(`${sourceId}_chunk_${chunk.metadata.chunkIndex}`, CHUNK_NAMESPACE);
+        const pointId = uuidv5(`${sourceId}_${ingestionId}_chunk_${chunk.metadata.chunkIndex}`, CHUNK_NAMESPACE);
         
         return {
           id: pointId,
@@ -118,6 +125,7 @@ export class SourceIngestionProcessor {
           payload: {
             workspaceId,
             sourceId,
+            ingestionId,
             sourceType: source.type,
             text: chunk.text,
             ...chunk.metadata
@@ -127,14 +135,35 @@ export class SourceIngestionProcessor {
 
       await qdrantService.upsertChunks(points);
 
-      await SourceDao.updateSourceStatus(sourceId, workspaceId, 'READY');
-      Logger.info(`Successfully completed ingestion for source ${sourceId}`);
+      await qdrantService.deleteOldIngestions(workspaceId, sourceId, ingestionId);
+
+      const updatedMetadata = {
+        ...(source.metadata || {}),
+        ...(parsedDoc?.metadata || {}),
+        activeIngestionId: ingestionId,
+        lastSyncError: null,
+      };
+
+      await SourceDao.updateSourceStatus(sourceId, workspaceId, 'READY', updatedMetadata);
+      Logger.info(`Successfully completed ingestion for source ${sourceId} (ingestionId: ${ingestionId})`);
 
     } catch (error: any) {
       Logger.error(`Ingestion failed for source ${sourceId}: ${error.message}`);
-      await SourceDao.updateSourceStatus(sourceId, workspaceId, 'FAILED', {
-        error: error.message
-      });
+      
+      const source = await SourceDao.findSourceByIdAndWorkspace(sourceId, workspaceId);
+      if (isSync && source && source.status === 'READY') {
+        await SourceDao.updateSourceStatus(sourceId, workspaceId, 'READY', {
+          ...(source.metadata || {}),
+          lastSyncError: error.message
+        });
+      } else {
+        await SourceDao.updateSourceStatus(sourceId, workspaceId, 'FAILED', {
+          ...(source?.metadata || {}),
+          error: error.message
+        });
+      }
+
+      await qdrantService.deleteOldIngestions(workspaceId, sourceId, source?.metadata?.activeIngestionId || 'none');
       if (error.message.includes('Embedding API error') || error.message.includes('Qdrant')) {
         throw error;
       }

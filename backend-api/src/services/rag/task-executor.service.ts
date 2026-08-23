@@ -18,10 +18,14 @@ export class TaskExecutorService {
     const model = ModelRegistry.getModel(enumConfig.modelPurpose.ragAnswer);
     const temperature = skill.temperature ?? 0.2;
 
+    const chatMessages = messages.filter(
+      (m: any) => m.role === 'user' || m.role === 'assistant'
+    );
+
     const result = streamText({
       model,
       system: systemPrompt,
-      messages,
+      messages: chatMessages,
       temperature,
     });
 

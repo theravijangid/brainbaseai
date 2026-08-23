@@ -4,6 +4,7 @@ import {
   Model,
   DataType,
   HasMany,
+  HasOne,
   PrimaryKey,
   Default,
   Unique,
@@ -12,6 +13,7 @@ import {
   UpdatedAt,
 } from 'sequelize-typescript'
 import { Workspace } from './workspace.model'
+import { Company } from './company.model'
 
 @Table({
   tableName: 'users',
@@ -72,6 +74,9 @@ export class User extends Model {
 
   @HasMany(() => Workspace, 'userId')
   declare workspaces: Workspace[]
+
+  @HasOne(() => Company, 'ownerUserId')
+  declare company: Company
 }
 
 export default User

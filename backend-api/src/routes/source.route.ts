@@ -50,4 +50,9 @@ router.post(
   (req, res) => sourceController.retrySource(req, res)
 )
 
+router.post(
+  '/:id/sync',
+  (req, res) => sourceController.syncSource(req, res)
+)
+
 export default router

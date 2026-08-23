@@ -5,6 +5,7 @@ import Logger from '../../config/logger';
 export interface QdrantPayload {
   workspaceId: string;
   sourceId: string;
+  ingestionId: string;
   chunkIndex: number;
   text: string;
   [key: string]: unknown;
@@ -49,6 +50,20 @@ export class QdrantService {
           wait: true,
         });
         Logger.info(`Created payload index for workspaceId on collection: ${this.collectionName}`);
+
+        await this.client.createPayloadIndex(this.collectionName, {
+          field_name: 'sourceId',
+          field_schema: 'keyword',
+          wait: true,
+        });
+        Logger.info(`Created payload index for sourceId on collection: ${this.collectionName}`);
+
+        await this.client.createPayloadIndex(this.collectionName, {
+          field_name: 'ingestionId',
+          field_schema: 'keyword',
+          wait: true,
+        });
+        Logger.info(`Created payload index for ingestionId on collection: ${this.collectionName}`);
       }
     } catch (error: any) {
       Logger.error(`Failed to ensure Qdrant collection exists: ${error.message}`);
@@ -56,19 +71,26 @@ export class QdrantService {
     }
   }
 
-  async searchChunks(workspaceId: string, vector: number[], limit: number = 5) {
+  async searchChunks(workspaceId: string, vector: number[], limit: number = 5, sourceIds?: string[]) {
     try {
+      const must: any[] = [
+        {
+          key: 'workspaceId',
+          match: { value: workspaceId },
+        },
+      ];
+
+      if (sourceIds && sourceIds.length > 0) {
+        must.push({
+          key: 'sourceId',
+          match: { any: sourceIds },
+        });
+      }
+
       const res = await this.client.search(this.collectionName, {
         vector,
         limit,
-        filter: {
-          must: [
-            {
-              key: 'workspaceId',
-              match: { value: workspaceId },
-            },
-          ],
-        },
+        filter: { must },
         with_payload: true,
       })
       return res
@@ -89,6 +111,47 @@ export class QdrantService {
     } catch (error: any) {
       Logger.error(`Error upserting to Qdrant: ${error.message}`);
       throw new Error(`Qdrant upsert failed: ${error.message}`);
+    }
+  }
+
+  async deleteOldIngestions(workspaceId: string, sourceId: string, activeIngestionId: string): Promise<void> {
+    try {
+      await this.ensureCollectionExists();
+      await this.client.delete(this.collectionName, {
+        wait: true,
+        filter: {
+          must: [
+            { key: 'workspaceId', match: { value: workspaceId } },
+            { key: 'sourceId', match: { value: sourceId } },
+          ],
+          must_not: [
+            { key: 'ingestionId', match: { value: activeIngestionId } },
+          ],
+        },
+      });
+      Logger.info(`Deleted old ingestions from Qdrant for source: ${sourceId}`);
+    } catch (error: any) {
+      Logger.error(`Error deleting old ingestions from Qdrant: ${error.message}`);
+      throw new Error(`Qdrant cleanup failed: ${error.message}`);
+    }
+  }
+
+  async deleteSource(workspaceId: string, sourceId: string): Promise<void> {
+    try {
+      await this.ensureCollectionExists();
+      await this.client.delete(this.collectionName, {
+        wait: true,
+        filter: {
+          must: [
+            { key: 'workspaceId', match: { value: workspaceId } },
+            { key: 'sourceId', match: { value: sourceId } },
+          ],
+        },
+      });
+      Logger.info(`Deleted all chunks from Qdrant for source: ${sourceId}`);
+    } catch (error: any) {
+      Logger.error(`Error deleting source chunks from Qdrant: ${error.message}`);
+      throw new Error(`Qdrant delete failed: ${error.message}`);
     }
   }
 }

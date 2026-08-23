@@ -28,4 +28,26 @@ export const workspacesApi = {
   deleteWorkspace: async (id: string, token: string | null): Promise<void> => {
     return apiConnector.delete<void>(`/workspaces/${id}`, token);
   },
+
+  getAnalytics: async (id: string, days: number, token: string | null): Promise<{
+    totalConversations: number;
+    aiConversations: number;
+    knowledgeChatUsage: number;
+    supportAgentUsage: number;
+    conversationTrend: { day: string; conversations: number; knowledge: number }[];
+    agentPerformance: { n: string; v: number }[];
+    sources: number;
+    agents: number;
+  }> => {
+    return apiConnector.get<{
+      totalConversations: number;
+      aiConversations: number;
+      knowledgeChatUsage: number;
+      supportAgentUsage: number;
+      conversationTrend: { day: string; conversations: number; knowledge: number }[];
+      agentPerformance: { n: string; v: number }[];
+      sources: number;
+      agents: number;
+    }>(`/workspaces/${id}/analytics?days=${days}`, token);
+  },
 };

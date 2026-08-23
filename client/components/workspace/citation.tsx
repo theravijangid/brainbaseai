@@ -1,20 +1,21 @@
 import { cn } from "@/lib/utils";
-import { useWorkspace } from "./workspace-context";
 
 export function CitationChip({
   citationId,
   label,
+  active,
+  onClick,
 }: {
   citationId: string;
   label: number;
+  active?: boolean;
+  onClick?: () => void;
 }) {
-  const { selectedCitationId, selectCitation } = useWorkspace();
-  const active = selectedCitationId === citationId;
   return (
     <button
       type="button"
       aria-label={`Open source for citation ${label}`}
-      onClick={() => selectCitation(citationId)}
+      onClick={onClick}
       className={cn(
         "citation-chip",
         active && "citation-chip-active",

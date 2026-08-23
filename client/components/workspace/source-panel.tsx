@@ -1,19 +1,25 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { X, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SourceTypeIcon } from "@/components/app-logo";
 import { Settings } from "lucide-react";
 import type { Citation } from "@/lib/types";
-import { useWorkspace } from "./workspace-context";
 import { PDFViewer } from "./viewers/pdf-viewer";
 import { YouTubeViewer } from "./viewers/youtube-viewer";
 import { WebsiteViewer } from "./viewers/website-viewer";
 import { TranscriptViewer } from "./viewers/transcript-viewer";
 import { TextViewer } from "./viewers/text-viewer";
 
-export function SourcePanel() {
-  const { selectedCitationId, selectCitation, getCitation, developerMode, setDeveloperMode } = useWorkspace();
-  const citation = selectedCitationId ? getCitation(selectedCitationId) : null;
+export function SourcePanel({ 
+  citation, 
+  onClose, 
+  workspaceId 
+}: { 
+  citation: Citation | null; 
+  onClose: () => void; 
+  workspaceId?: string;
+}) {
+  const [developerMode, setDeveloperMode] = useState(false);
 
   if (!citation) return null;
 
@@ -67,7 +73,7 @@ export function SourcePanel() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => selectCitation(null)}
+            onClick={onClose}
             aria-label="Close source panel"
             className="h-8 w-8"
           >
@@ -95,14 +101,17 @@ export function SourcePanel() {
             )}
           </div>
         )}
-        <ViewerRouter citation={citation} />
+        <ViewerRouter citation={citation} workspaceId={workspaceId} />
       </div>
     </aside>
   );
 }
 
 function getLocator(c: Citation) {
-  if (c.sourceType === "pdf") return c.page ? `Page ${c.page}` : "Document";
+  if (c.sourceType === "pdf") {
+    const p = c.pageNumber ?? c.page;
+    return p ? `Page ${p}` : "Document";
+  }
   if (c.sourceType === "youtube" || c.sourceType === "vtt" || c.sourceType === "srt") {
     return `${fmt(c.startTime)} – ${fmt(c.endTime)}`;
   }
@@ -120,10 +129,10 @@ function fmt(t?: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-function ViewerRouter({ citation }: { citation: Citation }) {
+function ViewerRouter({ citation, workspaceId }: { citation: Citation; workspaceId?: string }) {
   switch (citation.sourceType) {
     case "pdf":
-      return <PDFViewer citation={citation} />;
+      return <PDFViewer citation={citation} workspaceId={workspaceId} />;
     case "youtube":
       return <YouTubeViewer citation={citation} />;
     case "website":
@@ -137,3 +146,4 @@ function ViewerRouter({ citation }: { citation: Citation }) {
       return <TextViewer citation={citation} />;
   }
 }
+

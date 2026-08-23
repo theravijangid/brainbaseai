@@ -24,7 +24,7 @@ class ApiResponseHandler {
    * @param errorMessage Internal use
    */
 
-  handleBadRequest = async (res: express.Response, message: string, error?: string) => {
+  handleBadRequest = async (res: express.Response, message: string, error?: any) => {
     res.status(400).json({
       message: message,
       error,
@@ -38,7 +38,7 @@ class ApiResponseHandler {
    * @param errorMessage Internal use
    */
 
-  handleNotFoundRequest = async (res: express.Response, message: string, error?: string) => {
+  handleNotFoundRequest = async (res: express.Response, message: string, error?: any) => {
     res.status(404).json({
       message: message,
       error,
@@ -52,7 +52,7 @@ class ApiResponseHandler {
    * @param message Client side message
    * @param errorMessage Internal use
    */
-  handleErrorReponse(res: express.Response, message: string, errorMessage?: string) {
+  handleErrorReponse(res: express.Response, message: string, errorMessage?: any) {
     const responseObject = {
       status: 500,
       message: message,
@@ -68,7 +68,7 @@ class ApiResponseHandler {
    * @param message Client side message
    * @param error Internal use
    */
-   handleUnauthorizedRequest = async (res: express.Response, message: string, error?: string) => {
+   handleUnauthorizedRequest = async (res: express.Response, message: string, error?: any) => {
     res.status(401).json({
       message: message,
       error,
@@ -81,7 +81,7 @@ class ApiResponseHandler {
    * @param message Client side message
    * @param error Internal use
    */
-   handleForbiddenRequest = async (res: express.Response, message: string, error?: string) => {
+   handleForbiddenRequest = async (res: express.Response, message: string, error?: any) => {
     res.status(403).json({
       message: message,
       error,
@@ -94,7 +94,7 @@ class ApiResponseHandler {
    * @param message Client side message
    * @param error Internal error code/message
    */
-   handleConflict = async (res: express.Response, message: string, error?: string) => {
+   handleConflict = async (res: express.Response, message: string, error?: any) => {
     res.status(409).json({
       message: message,
       error,

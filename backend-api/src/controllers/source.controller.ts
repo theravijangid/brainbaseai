@@ -7,12 +7,31 @@ import { SourceType } from '../models/source.model'
 import { v4 as uuidv4 } from 'uuid'
 import { ingestionQueue } from '../services/queue/inngest.adapter'
 import sequelize from '../database'
+import entitlementService from '../services/entitlements/entitlement.service'
+import qdrantService from '../services/qdrant/qdrant.service'
 
 export class SourceController {
   async uploadSourceFile(req: Request, res: Response): Promise<void> {
     const transaction = await sequelize.transaction()
+    let storageKey: string | undefined
     try {
       const workspaceId = req.params.workspaceId || req.params.id
+      const company = req.company
+      
+      if (!company) {
+        await transaction.rollback()
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
+        return
+      }
+
+      const existingSources = await sourceDao.findSourcesByWorkspaceId(workspaceId, { transaction })
+      const canCreate = await entitlementService.canCreateSource(company.id, existingSources.length)
+      if (!canCreate) {
+        await transaction.rollback()
+        ApiResponseHandler.handleForbiddenRequest(res, 'PLAN_LIMIT_REACHED: Maximum sources per workspace reached.')
+        return
+      }
+
       const file = req.file
 
       if (!file) {
@@ -31,7 +50,7 @@ export class SourceController {
       else if (ext === '.md' || ext === '.markdown') type = 'markdown'
 
       const sourceId = uuidv4()
-      const storageKey = filebaseStorageService.getStorageKey(workspaceId, sourceId, originalName)
+      storageKey = filebaseStorageService.getStorageKey(workspaceId, sourceId, originalName)
 
       await filebaseStorageService.uploadFile(storageKey, file.buffer, file.mimetype)
 
@@ -45,7 +64,7 @@ export class SourceController {
           size: file.size,
           mimeType: file.mimetype,
         },
-      })
+      }, { transaction })
 
       await ingestionQueue.enqueueSource({
         workspaceId,
@@ -60,15 +79,38 @@ export class SourceController {
       )
     } catch (error: any) {
       await transaction.rollback()
+      if (storageKey) {
+        try {
+          await filebaseStorageService.deleteFile(storageKey)
+        } catch (cleanupErr) {
+          Logger.warn(`Failed to clean up uploaded file ${storageKey} on error: ${cleanupErr}`)
+        }
+      }
       Logger.error(`Error uploading source file: ${error.message}`)
       ApiResponseHandler.handleErrorReponse(res, 'Failed to upload source file', error.message)
     }
   }
 
   async registerUrlSource(req: Request, res: Response): Promise<void> {
+    const transaction = await sequelize.transaction()
     try {
       const workspaceId = req.params.workspaceId || req.params.id
+      const company = req.company
       const { url, name, type } = req.body
+
+      if (!company) {
+        await transaction.rollback()
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing')
+        return
+      }
+
+      const existingSources = await sourceDao.findSourcesByWorkspaceId(workspaceId, { transaction })
+      const canCreate = await entitlementService.canCreateSource(company.id, existingSources.length)
+      if (!canCreate) {
+        await transaction.rollback()
+        ApiResponseHandler.handleForbiddenRequest(res, 'PLAN_LIMIT_REACHED: Maximum sources per workspace reached.')
+        return
+      }
 
       const sourceName = name || url
       const source = await sourceDao.createSource({
@@ -80,19 +122,21 @@ export class SourceController {
         metadata: {
           url,
         },
-      })
+      }, { transaction })
 
       await ingestionQueue.enqueueSource({
         workspaceId,
         sourceId: source.id,
       })
 
+      await transaction.commit()
       ApiResponseHandler.handleSuccessResponse(
         res,
         'URL source registered successfully',
         source
       )
     } catch (error: any) {
+      await transaction.rollback()
       Logger.error(`Error registering URL source: ${error.message}`)
       ApiResponseHandler.handleErrorReponse(res, 'Failed to register URL source', error.message)
     }
@@ -159,8 +203,16 @@ export class SourceController {
 
       const fileBuffer = await filebaseStorageService.downloadFile(source.storageKey)
       
-      res.setHeader('Content-Type', 'application/pdf')
-      res.setHeader('Content-Disposition', `inline; filename="${source.originalName || 'document.pdf'}"`)
+      let contentType = source.metadata?.mimeType
+      if (!contentType) {
+        if (source.type === 'pdf') contentType = 'application/pdf'
+        else if (source.type === 'markdown') contentType = 'text/markdown'
+        else if (source.type === 'vtt') contentType = 'text/vtt'
+        else contentType = 'text/plain'
+      }
+
+      res.setHeader('Content-Type', contentType)
+      res.setHeader('Content-Disposition', `inline; filename="${source.name || 'document'}"`)
       res.send(fileBuffer)
     } catch (error: any) {
       Logger.error(`Error proxying source view: ${error.message}`)
@@ -169,12 +221,14 @@ export class SourceController {
   }
 
   async deleteSource(req: Request, res: Response): Promise<void> {
+    const transaction = await sequelize.transaction()
     try {
       const workspaceId = req.params.workspaceId
       const { id } = req.params
 
-      const source = await sourceDao.findSourceByIdAndWorkspace(id, workspaceId)
+      const source = await sourceDao.findSourceByIdAndWorkspace(id, workspaceId, { transaction })
       if (!source) {
+        await transaction.rollback()
         ApiResponseHandler.handleNotFoundRequest(res, 'Source not found')
         return
       }
@@ -183,23 +237,66 @@ export class SourceController {
         await filebaseStorageService.deleteFile(source.storageKey)
       }
 
-      await sourceDao.deleteSource(id, workspaceId)
+      await qdrantService.deleteSource(workspaceId, id)
 
+      await sourceDao.deleteSource(id, workspaceId, { transaction })
+
+      await transaction.commit()
       ApiResponseHandler.handleSuccessResponse(
         res,
         'Source deleted successfully',
         { id }
       )
     } catch (error: any) {
+      await transaction.rollback()
       Logger.error(`Error deleting source: ${error.message}`)
       ApiResponseHandler.handleErrorReponse(res, 'Failed to delete source', error.message)
     }
   }
 
   async retrySource(req: Request, res: Response): Promise<void> {
+    const transaction = await sequelize.transaction()
     try {
       const workspaceId = req.params.workspaceId;
       const { id } = req.params;
+
+      const source = await sourceDao.findSourceByIdAndWorkspace(id, workspaceId, { transaction });
+      if (!source) {
+        await transaction.rollback();
+        ApiResponseHandler.handleNotFoundRequest(res, 'Source not found');
+        return;
+      }
+
+      await sourceDao.updateSourceStatus(id, workspaceId, 'QUEUED', undefined, { transaction });
+
+      await ingestionQueue.enqueueSource({
+        workspaceId,
+        sourceId: source.id,
+      });
+
+      await transaction.commit();
+      ApiResponseHandler.handleSuccessResponse(
+        res,
+        'Source queued for retry',
+        { id: source.id, status: 'QUEUED' }
+      );
+    } catch (error: any) {
+      await transaction.rollback();
+      Logger.error(`Error retrying source: ${error.message}`);
+      ApiResponseHandler.handleErrorReponse(res, 'Failed to retry source', error.message);
+    }
+  }
+
+  async syncSource(req: Request, res: Response): Promise<void> {
+    try {
+      const workspaceId = req.params.workspaceId || req.params.id;
+      const { id } = req.params;
+      const company = req.company;
+
+      if (!company) {
+        ApiResponseHandler.handleUnauthorizedRequest(res, 'Company context missing');
+        return;
+      }
 
       const source = await sourceDao.findSourceByIdAndWorkspace(id, workspaceId);
       if (!source) {
@@ -207,21 +304,25 @@ export class SourceController {
         return;
       }
 
-      await sourceDao.updateSourceStatus(id, workspaceId, 'QUEUED');
+      if (source.type !== 'website') {
+        ApiResponseHandler.handleBadRequest(res, 'Only website sources can be synced manually currently');
+        return;
+      }
 
       await ingestionQueue.enqueueSource({
         workspaceId,
         sourceId: source.id,
+        sync: true,
       });
 
       ApiResponseHandler.handleSuccessResponse(
         res,
-        'Source queued for retry',
-        { id: source.id, status: 'QUEUED' }
+        'Source sync queued successfully',
+        { id: source.id }
       );
     } catch (error: any) {
-      Logger.error(`Error retrying source: ${error.message}`);
-      ApiResponseHandler.handleErrorReponse(res, 'Failed to retry source', error.message);
+      Logger.error(`Error syncing source: ${error.message}`);
+      ApiResponseHandler.handleErrorReponse(res, 'Failed to sync source', error.message);
     }
   }
 }

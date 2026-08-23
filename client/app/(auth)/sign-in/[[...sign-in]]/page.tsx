@@ -1,5 +1,10 @@
-import {SignIn} from "@clerk/nextjs";
+import { SignIn } from "@clerk/nextjs";
+import { AuthLayout } from "@/components/marketing/AuthLayout";
 
-export default function Page() {
-    return <SignIn forceRedirectUrl={"/"} />;
+export default function SignInPage() {
+  return (
+    <AuthLayout>
+      <SignIn routing="hash" />
+    </AuthLayout>
+  );
 }

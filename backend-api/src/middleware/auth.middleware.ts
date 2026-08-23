@@ -3,6 +3,7 @@ import { getAuth } from '@clerk/express'
 import ApiResponseHandler from '../helpers/api-response-handling.class'
 import userDao from '../dao/user.dao'
 import workspaceDao from '../dao/workspace.dao'
+import companyDao from '../dao/company.dao'
 import Logger from '../config/logger'
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -37,6 +38,10 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
 
     req.user = user
+    
+    const company = await companyDao.findCompanyByUserId(user.id)
+    req.company = company || undefined
+    
     next()
   } catch (error: any) {
     Logger.error(`Authentication error: ${error.message}`)
@@ -61,7 +66,12 @@ export async function requireWorkspaceAccess(
       return
     }
 
-    const workspace = await workspaceDao.findWorkspaceByIdAndUser(workspaceId, req.user.id)
+    if (!req.company) {
+      ApiResponseHandler.handleUnauthorizedRequest(res, 'Unauthorized: Company context missing')
+      return
+    }
+
+    const workspace = await workspaceDao.findWorkspaceByIdAndCompany(workspaceId, req.company.id)
 
     if (!workspace) {
       ApiResponseHandler.handleForbiddenRequest(

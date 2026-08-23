@@ -1,0 +1,9 @@
+export const BRAINBASE_BACKEND_URL = 'http://localhost:5000';
+export const DEFAULT_PRIMARY_COLOR = '#2563eb';
+export const DEFAULT_TITLE = 'Support';
+export const DEFAULT_SUBTITLE = 'Typically replies instantly';
+export const DEFAULT_WELCOME_MESSAGE = 'Hi! How can I help you?';
+export const MAX_MESSAGE_LENGTH = 2000;
+export const MAX_TITLE_LENGTH = 60;
+export const MAX_SUBTITLE_LENGTH = 100;
+export const MAX_WELCOME_MESSAGE_LENGTH = 500;
