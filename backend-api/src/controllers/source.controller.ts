@@ -65,13 +65,13 @@ export class SourceController {
           mimeType: file.mimetype,
         },
       }, { transaction })
+      await transaction.commit()
 
       await ingestionQueue.enqueueSource({
         workspaceId,
         sourceId: source.id,
       })
 
-      await transaction.commit()
       ApiResponseHandler.handleSuccessResponse(
         res,
         'Source uploaded and queued successfully',
