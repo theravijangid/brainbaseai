@@ -40,6 +40,9 @@ export function isValidAgentKey(key?: unknown): boolean {
 /**
  * Returns the Brainbase backend API URL.
  */
-export function getSafeBackendUrl(): string {
+export function getSafeBackendUrl(customUrl?: unknown): string {
+  if (typeof customUrl === 'string' && customUrl.trim().length > 0) {
+    return customUrl.trim().replace(/\/+$/, '');
+  }
   return BRAINBASE_BACKEND_URL.replace(/\/+$/, '');
 }

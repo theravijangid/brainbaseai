@@ -34,16 +34,29 @@ const stateCopy: Record<Exclude<WidgetState, 'chat' | 'loading'>, { title: strin
 
 export interface BrainbaseWidgetProps {
   /**
-   * The public key of your Brainbase Support Agent (e.g., "pk_live_...")
+   * The public key of your Brainbase Support Agent (e.g., "bb_live_..." or "pk_live_...")
    */
-  agentKey: string;
+  agentKey?: string;
+  /**
+   * Alias for agentKey.
+   */
+  publishableKey?: string;
   /**
    * Whether the widget panel starts open by default.
    */
   defaultOpen?: boolean;
+  /**
+   * Optional custom backend API URL (defaults to "https://brainbaseai.onrender.com").
+   */
+  apiUrl?: string;
 }
 
-export function BrainbaseWidget({ agentKey, defaultOpen = false }: BrainbaseWidgetProps) {
+export function BrainbaseWidget({
+  agentKey,
+  publishableKey,
+  defaultOpen = false,
+  apiUrl,
+}: BrainbaseWidgetProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   // Close on Escape key press for accessibility
@@ -66,6 +79,8 @@ export function BrainbaseWidget({ agentKey, defaultOpen = false }: BrainbaseWidg
         <div className="bb-widget-panel">
           <WidgetPanel
             agentKey={agentKey}
+            publishableKey={publishableKey}
+            apiUrl={apiUrl}
             onClose={() => setOpen(false)}
           />
         </div>
@@ -83,9 +98,21 @@ export function BrainbaseWidget({ agentKey, defaultOpen = false }: BrainbaseWidg
   );
 }
 
-function WidgetPanel({ agentKey, onClose }: { agentKey: string; onClose: () => void }) {
+function WidgetPanel({
+  agentKey,
+  publishableKey,
+  apiUrl,
+  onClose,
+}: {
+  agentKey?: string;
+  publishableKey?: string;
+  apiUrl?: string;
+  onClose: () => void;
+}) {
   const { state, branding, messages, input, setInput, handleSubmit, isLoading } = useBrainbaseChat({
     agentKey,
+    publishableKey,
+    apiUrl,
   });
 
   const endRef = useRef<HTMLDivElement>(null);

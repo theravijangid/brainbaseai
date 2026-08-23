@@ -1,4 +1,4 @@
-export const BRAINBASE_BACKEND_URL = 'http://localhost:5000';
+export const BRAINBASE_BACKEND_URL = 'https://brainbaseai.onrender.com';
 export const DEFAULT_PRIMARY_COLOR = '#2563eb';
 export const DEFAULT_TITLE = 'Support';
 export const DEFAULT_SUBTITLE = 'Typically replies instantly';

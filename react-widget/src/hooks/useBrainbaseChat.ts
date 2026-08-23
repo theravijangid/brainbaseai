@@ -14,9 +14,17 @@ export interface WidgetBranding {
 
 export interface UseBrainbaseChatProps {
   /**
-   * The public key of your Brainbase Support Agent (e.g., "pk_live_...")
+   * The public key of your Brainbase Support Agent (e.g., "bb_live_..." or "pk_live_...")
    */
-  agentKey: string;
+  agentKey?: string;
+  /**
+   * Alias for agentKey.
+   */
+  publishableKey?: string;
+  /**
+   * Optional custom Brainbase backend API URL. Defaults to "https://brainbaseai.onrender.com".
+   */
+  apiUrl?: string;
 }
 
 export interface BrainbaseChatContext {
@@ -31,16 +39,17 @@ export interface BrainbaseChatContext {
   isLoading: boolean;
 }
 
-export function useBrainbaseChat({ agentKey }: UseBrainbaseChatProps): BrainbaseChatContext {
+export function useBrainbaseChat({ agentKey, publishableKey, apiUrl }: UseBrainbaseChatProps): BrainbaseChatContext {
+  const effectiveAgentKey = agentKey || publishableKey || '';
   const [state, setState] = useState<WidgetState>('loading');
   const [token, setToken] = useState<string | null>(null);
   const [branding, setBranding] = useState<WidgetBranding | null>(null);
   const [input, setInput] = useState<string>('');
 
-  const backendUrl = useMemo(() => getSafeBackendUrl(), []);
+  const backendUrl = useMemo(() => getSafeBackendUrl(apiUrl), [apiUrl]);
 
   useEffect(() => {
-    if (!isValidAgentKey(agentKey)) {
+    if (!isValidAgentKey(effectiveAgentKey)) {
       setState('error');
       return;
     }
@@ -62,7 +71,7 @@ export function useBrainbaseChat({ agentKey }: UseBrainbaseChatProps): Brainbase
           credentials: 'omit',
           signal: abortController.signal,
           body: JSON.stringify({
-            publicKey: agentKey.trim(),
+            publicKey: effectiveAgentKey.trim(),
             origin,
           }),
         });
@@ -104,7 +113,7 @@ export function useBrainbaseChat({ agentKey }: UseBrainbaseChatProps): Brainbase
     return () => {
       abortController.abort();
     };
-  }, [agentKey, backendUrl]);
+  }, [effectiveAgentKey, backendUrl]);
 
   const apiEndpoint = token ? `${backendUrl}/api/v1/widget/chat` : undefined;
 

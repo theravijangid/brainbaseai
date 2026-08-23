@@ -135,7 +135,7 @@ npm run seed
 
 | Variable Name | Description | Example Value |
 | :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | URL of your deployed Render Backend | `https://brainbase-backend-api.onrender.com` |
+| `NEXT_PUBLIC_API_URL` | URL of your deployed Render Backend | `https://brainbaseai.onrender.com` |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk Publishable Key | `pk_test_...` |
 | `CLERK_SECRET_KEY` | Clerk Secret Key | `sk_test_...` |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Sign In Route | `/sign-in` |
@@ -154,9 +154,34 @@ For asynchronous document ingestion (PDF, Website crawl, YouTube transcripts):
 1. Log in to [Inngest Cloud](https://app.inngest.com/).
 2. Create an App syncing with your Render backend endpoint:
    ```text
-   https://<your-render-backend-url>/api/inngest
+   https://brainbaseai.onrender.com/api/inngest
    ```
 3. Set `INNGEST_EVENT_KEY` and `INNGEST_SIGNING_KEY` on Render once connected.
+
+---
+
+### Part 4: Publishing the React Widget (`@brainbaseai/react-widget`)
+
+The native React widget is pre-configured with the production backend (`https://brainbaseai.onrender.com`).
+
+To build and publish a new version to npm:
+
+```bash
+cd react-widget
+
+# 1. Install dependencies
+npm install
+
+# 2. Build the distribution bundle (ESM, CJS, and CSS)
+npm run build
+
+# 3. (Optional) Test package tarball locally
+npm pack --dry-run
+
+# 4. Publish to npm registry (public access)
+npm login
+npm publish --access public
+```
 
 ---
 
