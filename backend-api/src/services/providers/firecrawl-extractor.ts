@@ -26,8 +26,7 @@ export class FirecrawlExtractor implements WebContentExtractor {
 
     try {
       const result = await this.client.scrape(url, {
-        formats: ['markdown'],
-        signal: controller.signal as AbortSignal,
+        formats: ['markdown', 'html'],
       });
 
       const markdown = result.markdown ?? '';
