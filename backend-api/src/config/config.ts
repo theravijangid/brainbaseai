@@ -34,7 +34,7 @@ const appConfig = {
     retrievalCandidates: 20,
     contextTopK: 5,
     minSimilarityScore: 0.2,
-    rerankingEnabled: getOptionalEnvVar('RAG_RERANKING_ENABLED', 'false') === 'false',
+    rerankingEnabled: getOptionalEnvVar('RAG_RERANKING_ENABLED', 'false') === 'true',
     routerEnabled: getOptionalEnvVar('RAG_ROUTER_ENABLED', 'true') === 'true',
     maxExpansionStrategies: 4,
     maxSubqueries: 5,

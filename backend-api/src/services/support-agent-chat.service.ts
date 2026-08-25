@@ -27,6 +27,12 @@ export class SupportAgentChatService {
     }
 
     const lastUserMsg = messages[messages.length - 1];
+    if (!lastUserMsg || lastUserMsg.role !== 'user') {
+      throw new Error('The last message must be from the user.');
+    }
+    if (messages.length > 40) {
+      throw new Error('CONVERSATION_LIMIT_REACHED: Maximum messages per conversation reached. Please start a new conversation.');
+    }
     
     const injectionDecision = await PromptInjectionService.evaluateInput(lastUserMsg.content);
     if (!injectionDecision.isSafe) {
