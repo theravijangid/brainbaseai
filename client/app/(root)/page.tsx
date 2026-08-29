@@ -94,7 +94,7 @@ function LandingPage() {
               Turn your company knowledge into an AI support agent.
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-              Connect your company's knowledge and give customers instant, accurate answers through an
+              For SaaS, e-commerce, and knowledge-heavy businesses. Connect your company's knowledge and give customers instant, accurate answers through an
               AI agent that understands your business.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -176,8 +176,8 @@ function LandingPage() {
           {[
             { icon: Lock, label: "Secure company knowledge" },
             { icon: Shield, label: "Workspace isolation" },
-            { icon: BrainCircuit, label: "Source-aware AI" },
-            { icon: Code2, label: "Easy website integration" },
+            { icon: Lock, label: "Agent access control" },
+            { icon: Shield, label: "Secure API keys" },
             { icon: Zap, label: "Usage-based plans" },
           ].map((i) => (
             <div key={i.label} className="flex items-center gap-2.5">
@@ -222,9 +222,9 @@ function LandingPage() {
               {
                 n: "04",
                 icon: Code2,
-                title: "Embed it on your website",
-                body: "Paste one snippet and approve the domains allowed to load it.",
-                preview: ["<script src=…>", "acme.com approved"],
+                title: "Embed it in your application",
+                body: "Drop in the React widget or script snippet.",
+                preview: ["<SupportWidget />", "acme.com approved"],
               },
             ].map((s) => (
               <div key={s.n} className="surface-panel flex flex-col p-5">
@@ -249,8 +249,19 @@ function LandingPage() {
         </div>
       </section>
 
+      {/* SOLUTIONS HEADER */}
+      <section id="solutions" className="border-b border-border bg-surface py-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <SectionHead
+            eyebrow="Solutions"
+            title="One knowledge base. Two ways to use it."
+            body="Empower your internal team with a private brain, or deploy a public agent to answer customer questions."
+          />
+        </div>
+      </section>
+
       {/* COMPANY BRAIN */}
-      <section id="solutions" className="border-b border-border py-20">
+      <section className="border-b border-border py-20">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
           <div>
             <SectionHead
@@ -311,7 +322,7 @@ function LandingPage() {
               center={false}
               eyebrow="Support Agent"
               title="Your customers get answers, not a document dump"
-              body="The public agent answers from your approved knowledge in a clean, conversational way. Customers never see citations, source names or internal metadata."
+              body="The public agent answers from your approved knowledge in a clean, conversational way. Customers never see internal metadata. An AI that knows when it doesn't have the answer — automatically falling back to a custom message directing users to human support when information isn't found."
             />
             <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
               <FlowChip label="Knowledge" muted />
@@ -393,7 +404,8 @@ function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <SectionHead
             eyebrow="Analytics"
-            title="See what customers ask and what your knowledge answers"
+            title="Understand how your knowledge is being used"
+            body="Track internal Company Brain usage and customer conversations through your Support Agents over time."
           />
           <div className="surface-panel mt-10 overflow-hidden">
             <div className="grid gap-px border-b border-border bg-border sm:grid-cols-4">
@@ -420,7 +432,7 @@ function LandingPage() {
               ))}
             </div>
             <div className="flex items-center gap-3 border-t border-border px-5 py-3 text-xs text-muted-foreground">
-              <BarChart3 className="size-3.5" /> Conversations over the last 12 weeks · Usage limits
+              <BarChart3 className="size-3.5" /> Conversations over the last 7, 30, and 45 days · Usage limits
               tracked per plan
             </div>
           </div>
@@ -458,6 +470,36 @@ function LandingPage() {
             <Button asChild variant="outline">
               <Link href="/integrations">Browse all integrations</Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* DEVELOPERS */}
+      <section className="border-b border-border py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2">
+          <div>
+            <SectionHead
+              center={false}
+              eyebrow="Built for developers"
+              title="Integrate seamlessly into your existing application"
+              body="Embed Brainbase into your website with our React widget or integrate directly using the Brainbase API. Secure API keys and allowed domains keep your agent safe."
+            />
+            <div className="mt-6 flex flex-wrap gap-2">
+              <FlowChip label="React NPM Widget" muted />
+              <FlowChip label="REST API" muted />
+              <FlowChip label="Secure API Keys" muted />
+              {/* <FlowChip label="Domain Allowlisting" muted /> */}
+            </div>
+          </div>
+          <div className="surface-panel p-6 overflow-hidden">
+             <div className="rounded-lg border border-border bg-surface p-4 font-mono text-xs text-muted-foreground overflow-x-auto">
+               <span className="text-primary">npm</span> install @brainbase/react-widget<br/><br/>
+               <span className="text-primary">import</span> {'{ SupportWidget }'} <span className="text-primary">from</span> '@brainbase/react-widget';<br/><br/>
+               {'<SupportWidget'}<br/>
+               &nbsp;&nbsp;apiKey=<span className="text-success">"pk_live_..."</span><br/>
+               &nbsp;&nbsp;theme=<span className="text-success">"dark"</span><br/>
+               {'/>'}
+             </div>
           </div>
         </div>
       </section>

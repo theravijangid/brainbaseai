@@ -174,7 +174,7 @@ export default function TestWidgetPage() {
               <div>
                 <p className="text-sm font-semibold">1. Backend API</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Express API active at <code className="font-mono text-foreground">http://localhost:5000</code>.
+                  Express API active at <code className="font-mono text-foreground">https://brainbaseai.onrender.com</code>.
                 </p>
               </div>
             </div>
@@ -355,7 +355,7 @@ function HeadlessChatPreview({ agentKey }: { agentKey: string }) {
           <AlertCircle className="size-8 text-destructive mb-2" />
           <p className="text-sm font-semibold">Session Status: {state}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Ensure the agent is marked public and backend-api is running on localhost:5000.
+            Ensure the agent is marked public and backend-api is running on https://brainbaseai.onrender.com.
           </p>
         </div>
       ) : (

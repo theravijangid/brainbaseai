@@ -13,7 +13,7 @@
     "@ai-sdk/openai": "^4.0.16",
     "@ai-sdk/react": "^4.0.40",
     "@base-ui/react": "^1.6.0",
-    "@brainbaseai/react-widget": "^1.0.0",
+    "@brainbaseai/react-widget": "^1.0.1",
     "@clerk/nextjs": "^7.5.17",
     "@hookform/resolvers": "^5.9.1",
     "@radix-ui/react-accordion": "^1.2.20",

@@ -122,17 +122,40 @@ export function MarketingShell({ children }: { children: ReactNode }) {
   );
 }
 
-const footerCols = [
-  { title: "Product", links: ["Company Brain", "Support Agents", "Knowledge Sources", "Analytics"] },
-  { title: "Solutions", links: ["Customer Support", "Internal Helpdesk", "Docs & Onboarding"] },
-  { title: "Resources", links: ["Documentation", "Guides", "Changelog", "Status"] },
-  { title: "Company", links: ["Privacy", "Terms", "Security", "Contact"] },
+type FooterLink = { label: string; href: string };
+
+const footerCols: { title: string; links: FooterLink[] }[] = [
+  { 
+    title: "Product", 
+    links: [
+      { label: "Company Brain", href: "/#product" }, 
+      { label: "Support Agents", href: "/#product" }, 
+      { label: "Pricing", href: "/pricing" }
+    ] 
+  },
+  { 
+    title: "Company & Trust", 
+    links: [
+      { label: "Security", href: "/security" }, 
+      { label: "Contact Us", href: "/contact" }
+    ] 
+  },
+  { 
+    title: "Legal", 
+    links: [
+      { label: "Terms of Service", href: "/terms" }, 
+      { label: "Privacy Policy", href: "/privacy" }, 
+      { label: "Cancellation & Refunds", href: "/refunds" }, 
+      { label: "Acceptable Use", href: "/acceptable-use" },
+      { label: "Shipping & Delivery", href: "/shipping" }
+    ] 
+  },
 ];
 
 function SiteFooter() {
   return (
     <footer className="border-t border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-5">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
         <div className="md:col-span-1">
           <Logo />
           <p className="mt-3 max-w-56 text-sm text-muted-foreground">
@@ -144,10 +167,10 @@ function SiteFooter() {
             <h3 className="text-sm font-semibold">{col.title}</h3>
             <ul className="mt-3 space-y-2">
               {col.links.map((l) => (
-                <li key={l}>
-                  <span className="cursor-default text-sm text-muted-foreground transition-colors hover:text-foreground">
-                    {l}
-                  </span>
+                <li key={l.label}>
+                  <Link href={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>
