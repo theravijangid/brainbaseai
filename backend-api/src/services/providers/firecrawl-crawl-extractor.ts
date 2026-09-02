@@ -28,6 +28,7 @@ export class FirecrawlCrawlExtractor implements WebContentExtractor {
       const job: any = await this.client.crawl(url, {
         limit: 10,
         pollInterval: 2000,
+        timeout: this.timeoutMs,
         scrapeOptions: {
           formats: ['markdown'],
         }
