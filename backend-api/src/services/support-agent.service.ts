@@ -17,7 +17,15 @@ export class SupportAgentService {
       throw new Error('PLAN_LIMIT_REACHED: Maximum active agents reached for this billing period.');
     }
 
-    if (data.knowledgeScope?.mode === 'selected' && data.knowledgeScope?.sourceIds) {
+    const totalSourcesCount = await Source.count({ where: { workspaceId } });
+    if (totalSourcesCount === 0) {
+      throw new Error('NO_SOURCES: Workspace must have at least one knowledge source before creating a support agent.');
+    }
+
+    if (data.knowledgeScope?.mode === 'selected') {
+      if (!data.knowledgeScope?.sourceIds || data.knowledgeScope.sourceIds.length === 0) {
+        throw new Error('VALIDATION_ERROR: At least one source must be selected.');
+      }
       await this.validateSources(workspaceId, data.knowledgeScope.sourceIds);
     }
 
