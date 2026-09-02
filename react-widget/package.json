@@ -1,6 +1,6 @@
 {
   "name": "@brainbaseai/react-widget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Native React widget for Brainbase Support Agent",
   "license": "MIT",
   "main": "./dist/index.js",

@@ -208,7 +208,21 @@ export default function App() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="pc">Primary color</Label>
-                <Input id="pc" type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-20 p-1" />
+                <div className="flex items-center gap-3">
+                  <Input 
+                    id="pc" 
+                    type="color" 
+                    value={primaryColor} 
+                    onChange={(e) => setPrimaryColor(e.target.value)} 
+                    className="h-10 w-14 cursor-pointer p-1" 
+                  />
+                  <Input 
+                    value={primaryColor} 
+                    onChange={(e) => setPrimaryColor(e.target.value)} 
+                    placeholder="#2563eb" 
+                    className="h-10 font-mono text-xs" 
+                  />
+                </div>
               </div>
               <Button size="sm" onClick={handleSaveAppearance} disabled={isUpdating}>
                 {isUpdating ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}

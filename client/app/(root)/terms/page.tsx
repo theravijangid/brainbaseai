@@ -86,8 +86,8 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold mb-3">9. Contact Us</h2>
             <p>
               Brainbase AI<br />
-              Pilerne, Saligao<br />
-              Goa 403511, India<br />
+              {/* Pilerne, Saligao<br />
+              Goa 403511, India<br /> */}
               Email: support@brainbaseai.com
             </p>
           </section>

@@ -40,8 +40,8 @@ export default function ContactPage() {
           <h2 className="text-lg font-semibold text-foreground">Company Address</h2>
           <p>
             Brainbase AI<br />
-            Pilerne, Saligao<br />
-            Goa 403511<br />
+            {/* Pilerne, Saligao<br />
+            Goa 403511<br /> */}
             India
           </p>
           <p className="pt-4">

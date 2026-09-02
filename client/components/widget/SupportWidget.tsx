@@ -71,7 +71,7 @@ export function SupportWidgetPanel({
 
   const [input, setInput] = useState("");
 
-  const { messages, sendMessage } = useChat({
+  const { messages, sendMessage, setMessages } = useChat({
     transport: apiEndpoint ? new DefaultChatTransport({
       api: apiEndpoint,
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
@@ -108,6 +108,14 @@ export function SupportWidgetPanel({
     ] as UIMessage[]
   });
 
+  useEffect(() => {
+    if (!apiEndpoint) {
+      setMessages([
+        { id: "welcome", role: "assistant", parts: [{ type: "text", text: welcomeMessage }] }
+      ] as UIMessage[]);
+    }
+  }, [welcomeMessage, apiEndpoint, setMessages]);
+
   const isLoading = messages.length > 0 && messages[messages.length - 1]?.role === "user";
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -124,6 +132,7 @@ export function SupportWidgetPanel({
   }, [messages, isLoading]);
 
   const problem = state !== "chat" && state !== "empty" ? stateCopy[state] : null;
+  const safePrimaryColor = primaryColor?.trim() || "#2563eb";
 
   return (
     <div
@@ -136,7 +145,7 @@ export function SupportWidgetPanel({
     >
       <header 
         className="flex items-center gap-3 border-b border-border px-4 py-3.5 text-white" 
-        style={{ backgroundColor: primaryColor }}
+        style={{ backgroundColor: safePrimaryColor }}
       >
         <span className="flex size-8 items-center justify-center rounded-full bg-black/15 text-xs font-semibold">
           A
@@ -172,9 +181,9 @@ export function SupportWidgetPanel({
                     ? "rounded-br-sm text-white"
                     : "rounded-bl-sm border border-border bg-elevated text-foreground",
                 )}
-                style={m.role === "user" ? { backgroundColor: primaryColor } : {}}
+                style={m.role === "user" ? { backgroundColor: safePrimaryColor } : {}}
               >
-                {m.parts.map((p: any) => p.type === "text" ? p.text : "").join("")}
+                {m.parts?.map((p: any) => p.type === "text" ? p.text : "").join("") || (m as any).content || ""}
               </div>
             </div>
           ))}
@@ -201,13 +210,14 @@ export function SupportWidgetPanel({
           placeholder="Write a message…"
           aria-label="Message"
           disabled={!!problem || !apiEndpoint}
+          className="bg-surface text-foreground caret-foreground placeholder:text-muted-foreground border-border focus-visible:ring-primary"
         />
         <Button 
           type="submit" 
           size="icon" 
           aria-label="Send message" 
           disabled={!!problem || !apiEndpoint || !input.trim() || isLoading}
-          style={{ backgroundColor: primaryColor }}
+          style={{ backgroundColor: safePrimaryColor }}
         >
           {isLoading ? <Loader2 className="size-4 animate-spin text-white" /> : <Send className="size-4 text-white" />}
         </Button>

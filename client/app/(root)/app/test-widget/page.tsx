@@ -297,6 +297,7 @@ export default function TestWidgetPage() {
                   <BrainbaseWidget
                     key={`widget-${remountKey}-${activeKey}`}
                     agentKey={activeKey}
+                    apiUrl={process.env.NEXT_PUBLIC_API_URL}
                     defaultOpen={true}
                   />
                 )}
@@ -329,6 +330,7 @@ export default function TestWidgetPage() {
 function HeadlessChatPreview({ agentKey }: { agentKey: string }) {
   const { state, branding, messages, input, setInput, handleSubmit, isLoading } = useBrainbaseChat({
     agentKey,
+    apiUrl: process.env.NEXT_PUBLIC_API_URL,
   });
 
   const primaryColor = branding?.primaryColor || "#2563eb";
@@ -355,7 +357,7 @@ function HeadlessChatPreview({ agentKey }: { agentKey: string }) {
           <AlertCircle className="size-8 text-destructive mb-2" />
           <p className="text-sm font-semibold">Session Status: {state}</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Ensure the agent is marked public and backend-api is running on https://brainbaseai.onrender.com.
+            Ensure the agent is marked public and backend-api is running on https://brainbas...
           </p>
         </div>
       ) : (

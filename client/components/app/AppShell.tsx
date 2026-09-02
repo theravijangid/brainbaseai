@@ -261,10 +261,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
-            <button className="hidden items-center gap-2 rounded-lg border border-border bg-elevated px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-border-strong sm:flex">
+            {/* <button className="hidden items-center gap-2 rounded-lg border border-border bg-elevated px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-border-strong sm:flex">
               <Search className="size-3.5" /> Search
               <kbd className="rounded border border-border px-1 font-mono text-[10px]">⌘K</kbd>
-            </button>
+            </button> */}
             <Button asChild size="sm" variant={isPaid ? "secondary" : "outline"} className={cn("capitalize", isPaid && "bg-primary/10 text-primary border-primary/20 hover:bg-primary/15")}>
               <Link href="/app/billing">{planName} plan</Link>
             </Button>

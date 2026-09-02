@@ -211,10 +211,19 @@
   border-radius: 6px;
   font-size: 14px;
   outline: none;
+  background-color: #ffffff;
+  color: #111827;
+  caret-color: #111827;
+  box-sizing: border-box;
+}
+
+.bb-input::placeholder {
+  color: #9ca3af;
 }
 
 .bb-input:focus {
   border-color: #2563eb;
+  outline: none;
 }
 
 .bb-send-btn {
@@ -241,6 +250,101 @@
   padding-bottom: 8px;
   margin: 0;
   background-color: #fff;
+}
+
+/* Dark Mode Compatibility */
+.dark .bb-panel-container,
+[data-theme="dark"] .bb-panel-container,
+[data-mode="dark"] .bb-panel-container,
+.bb-panel-container.dark {
+  background-color: #18181b;
+  color: #f4f4f5;
+  border: 1px solid #27272a;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.dark .bb-messages-area,
+[data-theme="dark"] .bb-messages-area,
+[data-mode="dark"] .bb-messages-area,
+.bb-panel-container.dark .bb-messages-area {
+  background-color: #09090b;
+}
+
+.dark .bb-bubble-ai,
+[data-theme="dark"] .bb-bubble-ai,
+[data-mode="dark"] .bb-bubble-ai,
+.bb-panel-container.dark .bb-bubble-ai {
+  background-color: #18181b;
+  color: #f4f4f5;
+  border-color: #27272a;
+}
+
+.dark .bb-typing-indicator,
+[data-theme="dark"] .bb-typing-indicator,
+[data-mode="dark"] .bb-typing-indicator,
+.bb-panel-container.dark .bb-typing-indicator {
+  background-color: #18181b;
+  border-color: #27272a;
+}
+
+.dark .bb-input-area,
+[data-theme="dark"] .bb-input-area,
+[data-mode="dark"] .bb-input-area,
+.bb-panel-container.dark .bb-input-area {
+  background-color: #18181b;
+  border-top-color: #27272a;
+}
+
+.dark .bb-input,
+[data-theme="dark"] .bb-input,
+[data-mode="dark"] .bb-input,
+.bb-panel-container.dark .bb-input {
+  background-color: #09090b;
+  color: #f4f4f5;
+  caret-color: #f4f4f5;
+  border-color: #3f3f46;
+}
+
+.dark .bb-input::placeholder,
+[data-theme="dark"] .bb-input::placeholder,
+[data-mode="dark"] .bb-input::placeholder,
+.bb-panel-container.dark .bb-input::placeholder {
+  color: #71717a;
+}
+
+.dark .bb-footer,
+[data-theme="dark"] .bb-footer,
+[data-mode="dark"] .bb-footer,
+.bb-panel-container.dark .bb-footer {
+  background-color: #18181b;
+  color: #71717a;
+}
+
+.dark .bb-retry-btn,
+[data-theme="dark"] .bb-retry-btn,
+[data-mode="dark"] .bb-retry-btn,
+.bb-panel-container.dark .bb-retry-btn {
+  background-color: #27272a;
+  color: #f4f4f5;
+  border-color: #3f3f46;
+}
+
+.dark .bb-error-title,
+[data-theme="dark"] .bb-error-title,
+[data-mode="dark"] .bb-error-title,
+.bb-panel-container.dark .bb-error-title {
+  color: #f4f4f5;
+}
+
+.dark .bb-error-body,
+[data-theme="dark"] .bb-error-body,
+[data-mode="dark"] .bb-error-body,
+.bb-panel-container.dark .bb-error-body,
+.dark .bb-state-text,
+[data-theme="dark"] .bb-state-text,
+[data-mode="dark"] .bb-state-text,
+.bb-panel-container.dark .bb-state-text {
+  color: #a1a1aa;
 }
 
 .bb-icon {

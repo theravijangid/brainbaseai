@@ -67,8 +67,8 @@ export default function PrivacyPage() {
               For privacy-related requests or questions about this policy, please contact us at:
               <br /><br />
               Brainbase AI<br />
-              Pilerne, Saligao<br />
-              Goa 403511, India<br />
+              {/* Pilerne, Saligao<br />
+              Goa 403511, India<br /> */}
               Email: support@brainbaseai.com
             </p>
           </section>

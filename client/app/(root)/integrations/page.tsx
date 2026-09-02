@@ -59,14 +59,15 @@ function IntegrationsPage() {
                       </div>
                       <h3 className="mt-3 text-sm font-semibold">{i.name}</h3>
                       <p className="mt-1 flex-1 text-sm text-muted-foreground">{i.description}</p>
-                      <Button
-                        className="mt-4"
-                        size="sm"
-                        variant={i.available ? "default" : "outline"}
-                        disabled={!i.available}
-                      >
-                        {i.available ? "Connect" : "Coming Soon"}
-                      </Button>
+                      {i.available ? (
+                        <Button className="mt-4" size="sm" asChild>
+                          <Link href="/app/integrations">Connect</Link>
+                        </Button>
+                      ) : (
+                        <Button className="mt-4" size="sm" variant="outline" disabled>
+                          Coming Soon
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>

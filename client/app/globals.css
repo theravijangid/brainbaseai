@@ -310,3 +310,66 @@
     border-radius: 4px;
   }
 }
+
+/* Brainbase AI Widget Dark Mode Compatibility */
+.dark .bb-panel-container,
+[data-theme="dark"] .bb-panel-container {
+  background-color: var(--color-elevated, #18181b);
+  border: 1px solid var(--color-border, #27272a);
+  color: var(--color-foreground, #f4f4f5);
+}
+
+.dark .bb-messages-area,
+[data-theme="dark"] .bb-messages-area {
+  background-color: var(--color-surface, #09090b);
+}
+
+.dark .bb-bubble-ai,
+[data-theme="dark"] .bb-bubble-ai {
+  background-color: var(--color-elevated, #18181b);
+  color: var(--color-foreground, #f4f4f5);
+  border-color: var(--color-border, #27272a);
+}
+
+.dark .bb-typing-indicator,
+[data-theme="dark"] .bb-typing-indicator {
+  background-color: var(--color-elevated, #18181b);
+  border-color: var(--color-border, #27272a);
+}
+
+.dark .bb-input-area,
+[data-theme="dark"] .bb-input-area {
+  background-color: var(--color-elevated, #18181b);
+  border-top-color: var(--color-border, #27272a);
+}
+
+.dark .bb-input,
+[data-theme="dark"] .bb-input {
+  background-color: var(--color-surface, #09090b);
+  color: var(--color-foreground, #f4f4f5);
+  caret-color: var(--color-foreground, #f4f4f5);
+  border-color: var(--color-border, #3f3f46);
+}
+
+.dark .bb-input::placeholder,
+[data-theme="dark"] .bb-input::placeholder {
+  color: var(--color-muted-foreground, #71717a);
+}
+
+.dark .bb-footer,
+[data-theme="dark"] .bb-footer {
+  background-color: var(--color-elevated, #18181b);
+  color: var(--color-muted-foreground, #71717a);
+}
+
+.dark .bb-retry-btn,
+[data-theme="dark"] .bb-retry-btn {
+  background-color: var(--color-surface, #27272a);
+  color: var(--color-foreground, #f4f4f5);
+  border-color: var(--color-border, #3f3f46);
+}
+
+.dark .bb-error-title,
+[data-theme="dark"] .bb-error-title {
+  color: var(--color-foreground, #f4f4f5);
+}
