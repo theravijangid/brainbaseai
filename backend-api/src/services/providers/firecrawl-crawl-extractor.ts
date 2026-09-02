@@ -5,7 +5,6 @@ import Logger from '../../config/logger';
 
 export class FirecrawlCrawlExtractor implements WebContentExtractor {
   private readonly client: Firecrawl;
-  private readonly timeoutMs: number;
 
   constructor() {
     const { apiKey } = appConfig.firecrawl;
@@ -15,26 +14,28 @@ export class FirecrawlCrawlExtractor implements WebContentExtractor {
     }
 
     this.client = new Firecrawl({ apiKey });
-    this.timeoutMs = 120000; // Increased to 2 minutes for crawling
   }
 
   async extract(url: string): Promise<ExtractedWebContent> {
-    Logger.info(`FirecrawlCrawlExtractor: Crawling content from ${url}`);
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+    Logger.info(`FirecrawlCrawlExtractor: Initiating crawl for ${url}`);
 
     try {
+      const crawlStart = Date.now();
+      
       const job: any = await this.client.crawl(url, {
         limit: 10,
-        pollInterval: 2000,
-        timeout: this.timeoutMs,
+        pollInterval: 2,
+        timeout: 120,
         scrapeOptions: {
           formats: ['markdown'],
         }
       });
 
+      const elapsed = ((Date.now() - crawlStart) / 1000).toFixed(1);
+      Logger.info(`FirecrawlCrawlExtractor: Crawl API returned after ${elapsed}s. Success: ${job?.success}, Status: ${job?.status}, Items: ${job?.data?.length}`);
+
       if (!job || !job.success || !job.data || job.data.length === 0) {
+        Logger.error(`Firecrawl returned no extractable content. Job data: ` + JSON.stringify(job));
         throw new Error('Firecrawl returned no extractable content from the URL');
       }
 
@@ -62,13 +63,8 @@ export class FirecrawlCrawlExtractor implements WebContentExtractor {
         url: url,
       };
     } catch (error: any) {
-      if (error.name === 'AbortError') {
-        throw new Error(`Firecrawl request timed out after ${this.timeoutMs}ms for URL: ${url}`);
-      }
       Logger.error(`FirecrawlCrawlExtractor error: ${error.message}`);
       throw error;
-    } finally {
-      clearTimeout(timeout);
     }
   }
 }
