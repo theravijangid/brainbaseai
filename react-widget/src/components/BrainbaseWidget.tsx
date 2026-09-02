@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { AlertCircle, MessageSquare, RefreshCw, Send, X, Loader2 } from 'lucide-react';
+import { AlertCircle, MessageSquare, RefreshCw, Send, X, Loader2, Sparkles } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useBrainbaseChat, WidgetState } from '../hooks/useBrainbaseChat';
 import { getSafePrimaryColor, sanitizeText } from '../utils/security';
 import { clsx, type ClassValue } from 'clsx';
@@ -129,7 +130,9 @@ function WidgetPanel({
   return (
     <div className="bb-panel-container" role="dialog" aria-label="Support chat" aria-modal="true">
       <header className="bb-header" style={{ backgroundColor: primaryColor }}>
-        <span className="bb-avatar">A</span>
+        <span className="bb-avatar">
+          <Sparkles className="bb-icon-xs" />
+        </span>
         <div className="bb-header-text">
           <p className="bb-title">{title}</p>
           <p className="bb-subtitle">{subtitle}</p>
@@ -141,8 +144,12 @@ function WidgetPanel({
 
       {state === 'loading' ? (
         <div className="bb-state-container">
-          <Loader2 className="bb-spinner bb-icon-lg" />
-          <p className="bb-state-text">Connecting...</p>
+          <div className="bb-loading-pulse-ring">
+            <div className="bb-avatar-loading" style={{ backgroundColor: primaryColor }}>
+              <Sparkles className="bb-icon-sm bb-pulse-icon" />
+            </div>
+          </div>
+          <p className="bb-state-text">Connecting to assistant...</p>
         </div>
       ) : problem ? (
         <div className="bb-state-container">
@@ -168,21 +175,46 @@ function WidgetPanel({
                   className={cn('bb-message-bubble', m.role === 'user' ? 'bb-bubble-user' : 'bb-bubble-ai')}
                   style={m.role === 'user' ? { backgroundColor: primaryColor } : undefined}
                 >
-                  {textContent}
+                  {m.role === 'user' ? (
+                    textContent
+                  ) : (
+                    <div className="bb-markdown-content">
+                      <ReactMarkdown
+                        components={{
+                          a: ({ node, ...props }) => (
+                            <a {...props} target="_blank" rel="noopener noreferrer" />
+                          ),
+                        }}
+                      >
+                        {textContent}
+                      </ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               </div>
             );
           })}
           {isLoading && (
-            <div className="bb-typing-indicator" aria-live="polite">
-              <span className="sr-only">Assistant is typing</span>
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  className="bb-typing-dot"
-                  style={{ animationDelay: `${i * 120}ms` }}
-                />
-              ))}
+            <div className="bb-message-row">
+              <div className="bb-typing-container">
+                <div
+                  className="bb-typing-avatar"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  <Sparkles className="bb-icon-xs" />
+                </div>
+                <div className="bb-typing-indicator" aria-label="Assistant is typing" role="status">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="bb-typing-dot"
+                      style={{
+                        animationDelay: `${i * 180}ms`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
           <div ref={endRef} />
@@ -193,7 +225,7 @@ function WidgetPanel({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Write a message…"
+          placeholder="Write a message..."
           aria-label="Message"
           maxLength={2000}
           disabled={!!problem}

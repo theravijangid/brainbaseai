@@ -1,6 +1,6 @@
 {
   "name": "@brainbaseai/react-widget",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Native React widget for Brainbase Support Agent",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -51,6 +51,7 @@
   "dependencies": {
     "clsx": "^2.1.0",
     "lucide-react": "^0.428.0",
+    "react-markdown": "^9.0.3",
     "tailwind-merge": "^2.2.1"
   }
 }
